@@ -1,25 +1,18 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {
   View,
   StyleSheet,
   Text,
   Pressable,
   ScrollView,
+  Animated,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import {useVaultStore} from '../../store';
 import type {FileMeta} from '../../types';
 
 interface RecentNotesProps {
   onNoteSelect: (path: string) => void;
 }
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
@@ -49,36 +42,43 @@ const RecentNoteCard = React.memo(function RecentNoteCard({
   note,
   onPress,
 }: RecentNoteCardProps): React.JSX.Element {
-  const scale = useSharedValue(1);
+  const scale = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
-    scale.value = withTiming(0.95, {duration: 100});
+    Animated.timing(scale, {
+      toValue: 0.95,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   }, [scale]);
 
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, {damping: 15, stiffness: 400});
+    Animated.spring(scale, {
+      toValue: 1,
+      damping: 15,
+      stiffness: 400,
+      useNativeDriver: true,
+    }).start();
   }, [scale]);
 
   const handlePress = useCallback(() => {
     onPress(note.path);
   }, [note.path, onPress]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: scale.value}],
-  }));
-
   return (
-    <AnimatedPressable
-      style={[styles.card, animatedStyle]}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      onPress={handlePress}>
-      <Text style={styles.cardIcon}>📄</Text>
-      <Text style={styles.cardTitle} numberOfLines={2}>
-        {note.title}
-      </Text>
-      <Text style={styles.cardTime}>{formatRelativeTime(note.modifiedAt)}</Text>
-    </AnimatedPressable>
+    <Animated.View style={{transform: [{scale}]}}>
+      <Pressable
+        style={styles.card}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={handlePress}>
+        <Text style={styles.cardIcon}>📄</Text>
+        <Text style={styles.cardTitle} numberOfLines={2}>
+          {note.title}
+        </Text>
+        <Text style={styles.cardTime}>{formatRelativeTime(note.modifiedAt)}</Text>
+      </Pressable>
+    </Animated.View>
   );
 });
 

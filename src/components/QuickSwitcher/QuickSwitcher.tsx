@@ -6,15 +6,10 @@ import {
   Text,
   Pressable,
   Keyboard,
+  Animated,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import {FlashList} from '@shopify/flash-list';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInDown,
-  SlideOutDown,
-} from 'react-native-reanimated';
 import fuzzysort from 'fuzzysort';
 import {useVaultStore} from '../../store';
 import type {FileNode} from '../../types';
@@ -96,6 +91,8 @@ export function QuickSwitcher({
 
   const [query, setQuery] = useState('');
   const inputRef = useRef<TextInput>(null);
+  const clearButtonOpacity = useRef(new Animated.Value(0)).current;
+  const [showClearButton, setShowClearButton] = useState(false);
 
   const allFiles = useMemo(() => getAllFiles(fileTree), [fileTree]);
 
@@ -131,6 +128,23 @@ export function QuickSwitcher({
       setQuery('');
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (query.length > 0) {
+      setShowClearButton(true);
+      Animated.timing(clearButtonOpacity, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(clearButtonOpacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(() => setShowClearButton(false));
+    }
+  }, [query.length, clearButtonOpacity]);
 
   const close = useCallback(() => {
     Keyboard.dismiss();
@@ -192,10 +206,7 @@ export function QuickSwitcher({
       animationOutTiming={200}
       useNativeDriverForBackdrop
       avoidKeyboard>
-      <Animated.View
-        style={styles.container}
-        entering={SlideInDown.springify().damping(18)}
-        exiting={SlideOutDown.duration(150)}>
+      <View style={styles.container}>
         <View style={styles.handleContainer}>
           <View style={styles.handle} />
         </View>
@@ -214,8 +225,8 @@ export function QuickSwitcher({
             autoCapitalize="none"
             autoCorrect={false}
           />
-          {query.length > 0 && (
-            <Animated.View entering={FadeIn.duration(100)} exiting={FadeOut.duration(100)}>
+          {showClearButton && (
+            <Animated.View style={{opacity: clearButtonOpacity}}>
               <Pressable onPress={() => setQuery('')} style={styles.clearButton}>
                 <Text style={styles.clearButtonText}>✕</Text>
               </Pressable>
@@ -239,7 +250,7 @@ export function QuickSwitcher({
             </View>
           ) : null}
         </View>
-      </Animated.View>
+      </View>
     </Modal>
   );
 }

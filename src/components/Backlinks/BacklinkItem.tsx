@@ -1,18 +1,11 @@
-import React, {useMemo} from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import React, {useMemo, useRef, useCallback} from 'react';
+import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
 
 interface BacklinkItemProps {
   title: string;
   contextLine: string;
   onPress: () => void;
 }
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function highlightWikilink(text: string): React.ReactNode {
   const parts: React.ReactNode[] = [];
@@ -57,19 +50,25 @@ export function BacklinkItem({
   contextLine,
   onPress,
 }: BacklinkItemProps): React.JSX.Element {
-  const scale = useSharedValue(1);
+  const scale = useRef(new Animated.Value(1)).current;
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: scale.value}],
-  }));
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 0.98,
+      damping: 15,
+      stiffness: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [scale]);
 
-  const handlePressIn = () => {
-    scale.value = withSpring(0.98, {damping: 15, stiffness: 300});
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, {damping: 15, stiffness: 300});
-  };
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      damping: 15,
+      stiffness: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [scale]);
 
   const highlightedContext = useMemo(
     () => highlightWikilink(contextLine),
@@ -77,21 +76,23 @@ export function BacklinkItem({
   );
 
   return (
-    <AnimatedPressable
-      style={[styles.container, animatedStyle]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}>
-      <Text style={styles.icon}>📄</Text>
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-        <Text numberOfLines={2} style={styles.contextWrapper}>
-          {highlightedContext}
-        </Text>
-      </View>
-    </AnimatedPressable>
+    <Animated.View style={{transform: [{scale}]}}>
+      <Pressable
+        style={styles.container}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}>
+        <Text style={styles.icon}>📄</Text>
+        <View style={styles.content}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text numberOfLines={2} style={styles.contextWrapper}>
+            {highlightedContext}
+          </Text>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 

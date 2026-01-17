@@ -1,10 +1,5 @@
-import React, {useMemo} from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import React, {useMemo, useRef, useCallback} from 'react';
+import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
 
 interface SearchResultItemProps {
   title: string;
@@ -12,8 +7,6 @@ interface SearchResultItemProps {
   snippet?: string;
   onPress: () => void;
 }
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function getFileIcon(path: string): string {
   if (path.endsWith('.md')) return '📄';
@@ -65,19 +58,25 @@ export function SearchResultItem({
   snippet,
   onPress,
 }: SearchResultItemProps): React.JSX.Element {
-  const scale = useSharedValue(1);
+  const scale = useRef(new Animated.Value(1)).current;
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: scale.value}],
-  }));
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 0.98,
+      damping: 15,
+      stiffness: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [scale]);
 
-  const handlePressIn = () => {
-    scale.value = withSpring(0.98, {damping: 15, stiffness: 300});
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, {damping: 15, stiffness: 300});
-  };
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      damping: 15,
+      stiffness: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [scale]);
 
   const folderPath = useMemo(() => {
     const parts = path.split('/');
@@ -87,22 +86,24 @@ export function SearchResultItem({
   const icon = getFileIcon(path);
 
   return (
-    <AnimatedPressable
-      style={[styles.container, animatedStyle]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}>
-      <Text style={styles.icon}>{icon}</Text>
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-        <Text style={styles.path} numberOfLines={1}>
-          {folderPath}
-        </Text>
-        {snippet && parseSnippetWithHighlights(snippet)}
-      </View>
-    </AnimatedPressable>
+    <Animated.View style={{transform: [{scale}]}}>
+      <Pressable
+        style={styles.container}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}>
+        <Text style={styles.icon}>{icon}</Text>
+        <View style={styles.content}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text style={styles.path} numberOfLines={1}>
+            {folderPath}
+          </Text>
+          {snippet && parseSnippetWithHighlights(snippet)}
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 

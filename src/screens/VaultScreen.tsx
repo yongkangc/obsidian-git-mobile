@@ -1,13 +1,7 @@
-import React, {useCallback} from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import React, {useCallback, useRef} from 'react';
+import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {RootStackParamList} from '../../App';
 import {useVaultStore} from '../store';
@@ -23,8 +17,6 @@ type VaultScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Vault'
 >;
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function SyncStatusIndicator(): React.JSX.Element {
   const syncStatus = useVaultStore(state => state.syncStatus);
@@ -57,33 +49,43 @@ interface FABProps {
 
 function FAB({onQuickSwitch, onNewNote}: FABProps): React.JSX.Element {
   const insets = useSafeAreaInsets();
-  const mainScale = useSharedValue(1);
-  const secondaryScale = useSharedValue(1);
+  const mainScale = useRef(new Animated.Value(1)).current;
+  const secondaryScale = useRef(new Animated.Value(1)).current;
   const [expanded, setExpanded] = React.useState(false);
 
   const handleMainPressIn = useCallback(() => {
-    mainScale.value = withTiming(0.9, {duration: 100});
+    Animated.timing(mainScale, {
+      toValue: 0.9,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   }, [mainScale]);
 
   const handleMainPressOut = useCallback(() => {
-    mainScale.value = withSpring(1, {damping: 15, stiffness: 400});
+    Animated.spring(mainScale, {
+      toValue: 1,
+      damping: 15,
+      stiffness: 400,
+      useNativeDriver: true,
+    }).start();
   }, [mainScale]);
 
   const handleSecondaryPressIn = useCallback(() => {
-    secondaryScale.value = withTiming(0.9, {duration: 100});
+    Animated.timing(secondaryScale, {
+      toValue: 0.9,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   }, [secondaryScale]);
 
   const handleSecondaryPressOut = useCallback(() => {
-    secondaryScale.value = withSpring(1, {damping: 15, stiffness: 400});
+    Animated.spring(secondaryScale, {
+      toValue: 1,
+      damping: 15,
+      stiffness: 400,
+      useNativeDriver: true,
+    }).start();
   }, [secondaryScale]);
-
-  const mainAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: mainScale.value}],
-  }));
-
-  const secondaryAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: secondaryScale.value}],
-  }));
 
   const handleMainPress = useCallback(() => {
     if (expanded) {
@@ -100,26 +102,30 @@ function FAB({onQuickSwitch, onNewNote}: FABProps): React.JSX.Element {
   return (
     <View style={[styles.fabContainer, {bottom: insets.bottom + 16}]}>
       {expanded && (
-        <AnimatedPressable
-          style={[styles.fabSecondary, secondaryAnimatedStyle]}
-          onPressIn={handleSecondaryPressIn}
-          onPressOut={handleSecondaryPressOut}
-          onPress={() => {
-            setExpanded(false);
-            onNewNote();
-          }}>
-          <Text style={styles.fabIcon}>✏️</Text>
-        </AnimatedPressable>
+        <Animated.View style={{transform: [{scale: secondaryScale}]}}>
+          <Pressable
+            style={styles.fabSecondary}
+            onPressIn={handleSecondaryPressIn}
+            onPressOut={handleSecondaryPressOut}
+            onPress={() => {
+              setExpanded(false);
+              onNewNote();
+            }}>
+            <Text style={styles.fabIcon}>✏️</Text>
+          </Pressable>
+        </Animated.View>
       )}
-      <AnimatedPressable
-        style={[styles.fab, mainAnimatedStyle]}
-        onPressIn={handleMainPressIn}
-        onPressOut={handleMainPressOut}
-        onPress={handleMainPress}
-        onLongPress={handleLongPress}
-        delayLongPress={300}>
-        <Text style={styles.fabIcon}>{expanded ? '✕' : '🔍'}</Text>
-      </AnimatedPressable>
+      <Animated.View style={{transform: [{scale: mainScale}]}}>
+        <Pressable
+          style={styles.fab}
+          onPressIn={handleMainPressIn}
+          onPressOut={handleMainPressOut}
+          onPress={handleMainPress}
+          onLongPress={handleLongPress}
+          delayLongPress={300}>
+          <Text style={styles.fabIcon}>{expanded ? '✕' : '🔍'}</Text>
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }

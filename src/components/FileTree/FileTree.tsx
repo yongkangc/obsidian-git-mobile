@@ -2,11 +2,6 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {View, StyleSheet, Text, Pressable} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import Modal from 'react-native-modal';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  Layout,
-} from 'react-native-reanimated';
 import {useVaultStore} from '../../store';
 import {FileTreeItem} from './FileTreeItem';
 import type {FileNode} from '../../types';
@@ -117,15 +112,13 @@ export function FileTree({
 
   const renderItem = useCallback(
     ({item}: {item: FlattenedNode}) => (
-      <Animated.View layout={Layout.springify()} entering={FadeIn.duration(150)} exiting={FadeOut.duration(100)}>
-        <FileTreeItem
-          node={item.node}
-          depth={item.depth}
-          isExpanded={expandedFolders.has(item.node.path)}
-          onPress={handlePress}
-          onLongPress={handleLongPress}
-        />
-      </Animated.View>
+      <FileTreeItem
+        node={item.node}
+        depth={item.depth}
+        isExpanded={expandedFolders.has(item.node.path)}
+        onPress={handlePress}
+        onLongPress={handleLongPress}
+      />
     ),
     [expandedFolders, handlePress, handleLongPress],
   );

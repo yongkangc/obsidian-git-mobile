@@ -1,17 +1,10 @@
-import React, {useCallback} from 'react';
-import {View, StyleSheet, Text, Pressable, ScrollView} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import React, {useCallback, useRef} from 'react';
+import {View, StyleSheet, Text, Pressable, ScrollView, Animated} from 'react-native';
 import {useVaultStore} from '../../store';
 
 interface BreadcrumbProps {
   onNavigate: (pathSegments: string[]) => void;
 }
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface BreadcrumbItemProps {
   label: string;
@@ -24,32 +17,37 @@ const BreadcrumbItem = React.memo(function BreadcrumbItem({
   isLast,
   onPress,
 }: BreadcrumbItemProps): React.JSX.Element {
-  const opacity = useSharedValue(1);
+  const opacity = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
-    opacity.value = withTiming(0.5, {duration: 100});
+    Animated.timing(opacity, {
+      toValue: 0.5,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   }, [opacity]);
 
   const handlePressOut = useCallback(() => {
-    opacity.value = withTiming(1, {duration: 100});
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   }, [opacity]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
 
   return (
     <View style={styles.itemContainer}>
-      <AnimatedPressable
-        style={animatedStyle}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={onPress}
-        disabled={isLast}>
-        <Text style={[styles.itemText, isLast && styles.itemTextActive]}>
-          {label}
-        </Text>
-      </AnimatedPressable>
+      <Animated.View style={{opacity}}>
+        <Pressable
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={onPress}
+          disabled={isLast}>
+          <Text style={[styles.itemText, isLast && styles.itemTextActive]}>
+            {label}
+          </Text>
+        </Pressable>
+      </Animated.View>
       {!isLast && <Text style={styles.separator}>›</Text>}
     </View>
   );

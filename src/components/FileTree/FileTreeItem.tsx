@@ -1,12 +1,5 @@
-import React, {useCallback} from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
+import React, {useCallback, useRef, useEffect} from 'react';
+import {Pressable, StyleSheet, Text, View, Animated} from 'react-native';
 import type {FileNode} from '../../types';
 
 const INDENT_SIZE = 20;
@@ -18,8 +11,6 @@ interface FileTreeItemProps {
   onPress: (node: FileNode) => void;
   onLongPress: (node: FileNode) => void;
 }
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function getFileIcon(node: FileNode): string {
   if (node.isDirectory) {
@@ -48,22 +39,33 @@ export const FileTreeItem = React.memo(function FileTreeItem({
   onPress,
   onLongPress,
 }: FileTreeItemProps): React.JSX.Element {
-  const scale = useSharedValue(1);
-  const chevronRotation = useSharedValue(isExpanded ? 1 : 0);
+  const scale = useRef(new Animated.Value(1)).current;
+  const chevronRotation = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
 
-  React.useEffect(() => {
-    chevronRotation.value = withSpring(isExpanded ? 1 : 0, {
+  useEffect(() => {
+    Animated.spring(chevronRotation, {
+      toValue: isExpanded ? 1 : 0,
       damping: 15,
       stiffness: 200,
-    });
+      useNativeDriver: true,
+    }).start();
   }, [isExpanded, chevronRotation]);
 
   const handlePressIn = useCallback(() => {
-    scale.value = withTiming(0.96, {duration: 100});
+    Animated.timing(scale, {
+      toValue: 0.96,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   }, [scale]);
 
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, {damping: 15, stiffness: 400});
+    Animated.spring(scale, {
+      toValue: 1,
+      damping: 15,
+      stiffness: 400,
+      useNativeDriver: true,
+    }).start();
   }, [scale]);
 
   const handlePress = useCallback(() => {
@@ -74,37 +76,40 @@ export const FileTreeItem = React.memo(function FileTreeItem({
     onLongPress(node);
   }, [node, onLongPress]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: scale.value}],
-  }));
-
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [
-      {rotate: `${interpolate(chevronRotation.value, [0, 1], [0, 90])}deg`},
-    ],
-    opacity: node.isDirectory ? 1 : 0,
-  }));
+  const chevronRotateInterpolation = chevronRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '90deg'],
+  });
 
   const icon = getFileIcon(node);
 
   return (
-    <AnimatedPressable
-      style={[styles.container, animatedStyle, {paddingLeft: depth * INDENT_SIZE + 12}]}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      onPress={handlePress}
-      onLongPress={handleLongPress}
-      delayLongPress={400}>
-      <Animated.View style={[styles.chevron, chevronStyle]}>
-        <Text style={styles.chevronText}>›</Text>
-      </Animated.View>
-      <Text style={styles.icon}>{icon}</Text>
-      <View style={styles.textContainer}>
-        <Text style={styles.name} numberOfLines={1}>
-          {node.name}
-        </Text>
-      </View>
-    </AnimatedPressable>
+    <Animated.View style={{transform: [{scale}]}}>
+      <Pressable
+        style={[styles.container, {paddingLeft: depth * INDENT_SIZE + 12}]}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={handlePress}
+        onLongPress={handleLongPress}
+        delayLongPress={400}>
+        <Animated.View
+          style={[
+            styles.chevron,
+            {
+              transform: [{rotate: chevronRotateInterpolation}],
+              opacity: node.isDirectory ? 1 : 0,
+            },
+          ]}>
+          <Text style={styles.chevronText}>›</Text>
+        </Animated.View>
+        <Text style={styles.icon}>{icon}</Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.name} numberOfLines={1}>
+            {node.name}
+          </Text>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 });
 

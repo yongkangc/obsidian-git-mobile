@@ -2,7 +2,6 @@ import React, {useCallback} from 'react';
 import {View, Text, StyleSheet, Pressable, ActivityIndicator} from 'react-native';
 import Modal from 'react-native-modal';
 import {FlashList} from '@shopify/flash-list';
-import Animated, {SlideInDown, SlideOutDown} from 'react-native-reanimated';
 import {BacklinkItem} from './BacklinkItem';
 import type {BacklinkInfo} from '../../hooks/useBacklinks';
 
@@ -55,10 +54,7 @@ export function BacklinksPanel({
       animationOutTiming={200}
       useNativeDriverForBackdrop
       avoidKeyboard>
-      <Animated.View
-        style={styles.container}
-        entering={SlideInDown.springify().damping(18)}
-        exiting={SlideOutDown.duration(150)}>
+      <View style={styles.container}>
         <View style={styles.handleContainer}>
           <View style={styles.handle} />
         </View>
@@ -99,7 +95,7 @@ export function BacklinksPanel({
             </View>
           )}
         </View>
-      </Animated.View>
+      </View>
     </Modal>
   );
 }

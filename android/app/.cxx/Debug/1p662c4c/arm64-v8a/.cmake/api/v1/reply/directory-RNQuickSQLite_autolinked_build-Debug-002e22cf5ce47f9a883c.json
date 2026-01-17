@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "RNQuickSQLite_autolinked_build",
+		"source" : "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-quick-sqlite/android/build/generated/source/codegen/jni"
+	}
+}

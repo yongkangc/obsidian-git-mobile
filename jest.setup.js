@@ -28,40 +28,6 @@ jest.mock('react-native-gesture-handler', () => ({
   Directions: {},
 }));
 
-jest.mock('react-native-reanimated', () => ({
-  default: {
-    call: () => {},
-    createAnimatedComponent: (component) => component,
-    Value: jest.fn(),
-    event: jest.fn(),
-    add: jest.fn(),
-    eq: jest.fn(),
-    set: jest.fn(),
-    cond: jest.fn(),
-    interpolate: jest.fn(),
-    Extrapolate: { CLAMP: jest.fn() },
-    useAnimatedStyle: () => ({}),
-    useSharedValue: (v) => ({ value: v }),
-    withTiming: (v) => v,
-    withSpring: (v) => v,
-    withDelay: (_, v) => v,
-    runOnJS: (fn) => fn,
-    runOnUI: (fn) => fn,
-  },
-  useAnimatedStyle: () => ({}),
-  useSharedValue: (v) => ({ value: v }),
-  withTiming: (v) => v,
-  withSpring: (v) => v,
-  withDelay: (_, v) => v,
-  runOnJS: (fn) => fn,
-  runOnUI: (fn) => fn,
-  Easing: {
-    linear: jest.fn(),
-    ease: jest.fn(),
-    inOut: jest.fn(),
-  },
-}));
-
 jest.mock('react-native-screens', () => ({
   enableScreens: jest.fn(),
 }));

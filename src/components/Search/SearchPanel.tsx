@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useCallback} from 'react';
+import React, {useRef, useEffect, useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,9 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 import {SearchResultItem} from './SearchResultItem';
 import type {SearchResult} from '../../types';
 import type {SearchMode} from '../../hooks/useSearch';
@@ -33,11 +33,30 @@ export function SearchPanel({
   onResultPress,
 }: SearchPanelProps): React.JSX.Element {
   const inputRef = useRef<TextInput>(null);
+  const clearButtonOpacity = useRef(new Animated.Value(0)).current;
+  const [showClearButton, setShowClearButton] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => inputRef.current?.focus(), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (query.length > 0 && !isLoading) {
+      setShowClearButton(true);
+      Animated.timing(clearButtonOpacity, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(clearButtonOpacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(() => setShowClearButton(false));
+    }
+  }, [query.length, isLoading, clearButtonOpacity]);
 
   const renderItem = useCallback(
     ({item}: {item: SearchResult}) => (
@@ -107,10 +126,8 @@ export function SearchPanel({
             style={styles.loader}
           />
         )}
-        {query.length > 0 && !isLoading && (
-          <Animated.View
-            entering={FadeIn.duration(100)}
-            exiting={FadeOut.duration(100)}>
+        {showClearButton && (
+          <Animated.View style={{opacity: clearButtonOpacity}}>
             <Pressable onPress={handleClear} style={styles.clearButton}>
               <Text style={styles.clearButtonText}>✕</Text>
             </Pressable>
