@@ -1,45 +1,70 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import React, {useEffect} from 'react';
+import {StatusBar, useColorScheme} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+  VaultScreen,
+  EditorScreen,
+  SettingsScreen,
+  SearchScreen,
+} from './src/screens';
+import {indexDB} from './src/services/index-db';
 
-function App() {
+export type RootStackParamList = {
+  Vault: undefined;
+  Editor: {path: string};
+  Settings: undefined;
+  Search: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+  useEffect(() => {
+    indexDB.init().catch(console.error);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <SafeAreaProvider>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Vault"
+            screenOptions={{
+              headerStyle: {backgroundColor: '#1e1e1e'},
+              headerTintColor: '#ffffff',
+              contentStyle: {backgroundColor: '#1e1e1e'},
+            }}>
+            <Stack.Screen
+              name="Vault"
+              component={VaultScreen}
+              options={{title: 'Vault'}}
+            />
+            <Stack.Screen
+              name="Editor"
+              component={EditorScreen}
+              options={{title: 'Editor'}}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{title: 'Settings'}}
+            />
+            <Stack.Screen
+              name="Search"
+              component={SearchScreen}
+              options={{title: 'Search'}}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;
