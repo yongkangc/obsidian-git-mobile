@@ -2,7 +2,7 @@ import React, {useCallback, useRef, useEffect} from 'react';
 import {Pressable, StyleSheet, Text, View, Animated} from 'react-native';
 import type {FileNode} from '../../types';
 
-const INDENT_SIZE = 20;
+const INDENT_SIZE = 16;
 
 interface FileTreeItemProps {
   node: FileNode;
@@ -12,24 +12,20 @@ interface FileTreeItemProps {
   onLongPress: (node: FileNode) => void;
 }
 
-function getFileIcon(node: FileNode): string {
+function getFileIcon(node: FileNode, isExpanded: boolean): string {
   if (node.isDirectory) {
-    return '📁';
+    return isExpanded ? '▾' : '▸';
   }
-  const ext = node.name.split('.').pop()?.toLowerCase();
-  switch (ext) {
-    case 'md':
-      return '📄';
-    case 'png':
-    case 'jpg':
-    case 'jpeg':
-    case 'gif':
-    case 'webp':
-    case 'svg':
-      return '🖼️';
-    default:
-      return '📄';
+  return '';
+}
+
+function getFileTypeIndicator(name: string): string | null {
+  const ext = name.split('.').pop()?.toLowerCase();
+  if (ext === 'md') return null;
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext || '')) {
+    return 'img';
   }
+  return ext || null;
 }
 
 export const FileTreeItem = React.memo(function FileTreeItem({
@@ -39,34 +35,33 @@ export const FileTreeItem = React.memo(function FileTreeItem({
   onPress,
   onLongPress,
 }: FileTreeItemProps): React.JSX.Element {
-  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
   const chevronRotation = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
 
   useEffect(() => {
     Animated.spring(chevronRotation, {
       toValue: isExpanded ? 1 : 0,
-      damping: 15,
-      stiffness: 200,
+      damping: 20,
+      stiffness: 300,
       useNativeDriver: true,
     }).start();
   }, [isExpanded, chevronRotation]);
 
   const handlePressIn = useCallback(() => {
-    Animated.timing(scale, {
-      toValue: 0.96,
+    Animated.timing(opacity, {
+      toValue: 0.6,
+      duration: 50,
+      useNativeDriver: true,
+    }).start();
+  }, [opacity]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
       duration: 100,
       useNativeDriver: true,
     }).start();
-  }, [scale]);
-
-  const handlePressOut = useCallback(() => {
-    Animated.spring(scale, {
-      toValue: 1,
-      damping: 15,
-      stiffness: 400,
-      useNativeDriver: true,
-    }).start();
-  }, [scale]);
+  }, [opacity]);
 
   const handlePress = useCallback(() => {
     onPress(node);
@@ -76,38 +71,40 @@ export const FileTreeItem = React.memo(function FileTreeItem({
     onLongPress(node);
   }, [node, onLongPress]);
 
-  const chevronRotateInterpolation = chevronRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '90deg'],
-  });
-
-  const icon = getFileIcon(node);
+  const icon = getFileIcon(node, isExpanded);
+  const typeIndicator = !node.isDirectory ? getFileTypeIndicator(node.name) : null;
+  const displayName = node.isDirectory
+    ? node.name
+    : node.name.replace(/\.md$/, '');
 
   return (
-    <Animated.View style={{transform: [{scale}]}}>
+    <Animated.View style={{opacity}}>
       <Pressable
-        style={[styles.container, {paddingLeft: depth * INDENT_SIZE + 12}]}
+        style={({pressed}) => [
+          styles.container,
+          {paddingLeft: depth * INDENT_SIZE + 16},
+          pressed && styles.pressed,
+        ]}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}
         onLongPress={handleLongPress}
         delayLongPress={400}>
-        <Animated.View
-          style={[
-            styles.chevron,
-            {
-              transform: [{rotate: chevronRotateInterpolation}],
-              opacity: node.isDirectory ? 1 : 0,
-            },
-          ]}>
-          <Text style={styles.chevronText}>›</Text>
-        </Animated.View>
-        <Text style={styles.icon}>{icon}</Text>
-        <View style={styles.textContainer}>
-          <Text style={styles.name} numberOfLines={1}>
-            {node.name}
-          </Text>
-        </View>
+        {node.isDirectory ? (
+          <Text style={styles.chevron}>{icon}</Text>
+        ) : (
+          <View style={styles.fileIndicator} />
+        )}
+        <Text
+          style={[styles.name, node.isDirectory && styles.folderName]}
+          numberOfLines={1}>
+          {displayName}
+        </Text>
+        {typeIndicator && (
+          <View style={styles.typeBadge}>
+            <Text style={styles.typeBadgeText}>{typeIndicator}</Text>
+          </View>
+        )}
       </Pressable>
     </Animated.View>
   );
@@ -117,29 +114,46 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 9,
     paddingRight: 16,
-    backgroundColor: '#1e1e1e',
+    minHeight: 40,
+  },
+  pressed: {
+    backgroundColor: '#262626',
   },
   chevron: {
-    width: 16,
-    alignItems: 'center',
+    width: 18,
+    color: '#666666',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  fileIndicator: {
+    width: 18,
+    height: 18,
     justifyContent: 'center',
-  },
-  chevronText: {
-    color: '#888',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  icon: {
-    fontSize: 16,
-    marginHorizontal: 8,
-  },
-  textContainer: {
-    flex: 1,
+    alignItems: 'center',
   },
   name: {
-    color: '#e0e0e0',
-    fontSize: 15,
+    flex: 1,
+    color: '#dcddde',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  folderName: {
+    color: '#dcddde',
+    fontWeight: '500',
+  },
+  typeBadge: {
+    backgroundColor: '#333333',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginLeft: 8,
+  },
+  typeBadgeText: {
+    color: '#888888',
+    fontSize: 10,
+    fontWeight: '500',
+    textTransform: 'uppercase',
   },
 });

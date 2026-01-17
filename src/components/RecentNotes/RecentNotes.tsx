@@ -22,10 +22,10 @@ function formatRelativeTime(timestamp: number): string {
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
+  if (minutes < 1) return 'now';
+  if (minutes < 60) return `${minutes}m`;
+  if (hours < 24) return `${hours}h`;
+  if (days < 7) return `${days}d`;
 
   return new Date(timestamp).toLocaleDateString('en-US', {
     month: 'short',
@@ -42,37 +42,35 @@ const RecentNoteCard = React.memo(function RecentNoteCard({
   note,
   onPress,
 }: RecentNoteCardProps): React.JSX.Element {
-  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
-    Animated.timing(scale, {
-      toValue: 0.95,
+    Animated.timing(opacity, {
+      toValue: 0.7,
+      duration: 50,
+      useNativeDriver: true,
+    }).start();
+  }, [opacity]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
       duration: 100,
       useNativeDriver: true,
     }).start();
-  }, [scale]);
-
-  const handlePressOut = useCallback(() => {
-    Animated.spring(scale, {
-      toValue: 1,
-      damping: 15,
-      stiffness: 400,
-      useNativeDriver: true,
-    }).start();
-  }, [scale]);
+  }, [opacity]);
 
   const handlePress = useCallback(() => {
     onPress(note.path);
   }, [note.path, onPress]);
 
   return (
-    <Animated.View style={{transform: [{scale}]}}>
+    <Animated.View style={{opacity}}>
       <Pressable
         style={styles.card}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}>
-        <Text style={styles.cardIcon}>📄</Text>
         <Text style={styles.cardTitle} numberOfLines={2}>
           {note.title}
         </Text>
@@ -99,11 +97,7 @@ export function RecentNotes({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
         {recentNotes.map(note => (
-          <RecentNoteCard
-            key={note.path}
-            note={note}
-            onPress={onNoteSelect}
-          />
+          <RecentNoteCard key={note.path} note={note} onPress={onNoteSelect} />
         ))}
       </ScrollView>
     </View>
@@ -112,40 +106,40 @@ export function RecentNotes({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
   sectionTitle: {
-    color: '#888',
-    fontSize: 13,
+    color: '#888888',
+    fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
     paddingHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   scrollContent: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     gap: 10,
   },
   card: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
+    backgroundColor: '#262626',
+    borderRadius: 10,
     padding: 12,
-    width: 130,
-    height: 100,
+    width: 120,
+    height: 80,
     justifyContent: 'space-between',
-  },
-  cardIcon: {
-    fontSize: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#333333',
   },
   cardTitle: {
-    color: '#e0e0e0',
+    color: '#dcddde',
     fontSize: 13,
     fontWeight: '500',
-    lineHeight: 18,
+    lineHeight: 17,
   },
   cardTime: {
-    color: '#666',
+    color: '#666666',
     fontSize: 11,
   },
 });

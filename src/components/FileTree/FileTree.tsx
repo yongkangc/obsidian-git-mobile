@@ -84,7 +84,7 @@ export function FileTree({
     return [
       {
         label: 'Rename',
-        icon: '✏️',
+        icon: '✎',
         onPress: () => {
           closeContextMenu();
           onRename?.(selectedNode);
@@ -92,7 +92,7 @@ export function FileTree({
       },
       {
         label: 'Move',
-        icon: '📦',
+        icon: '↗',
         onPress: () => {
           closeContextMenu();
           onMove?.(selectedNode);
@@ -100,7 +100,7 @@ export function FileTree({
       },
       {
         label: 'Delete',
-        icon: '🗑️',
+        icon: '×',
         onPress: () => {
           closeContextMenu();
           onDelete?.(selectedNode);
@@ -128,9 +128,10 @@ export function FileTree({
   if (flattenedNodes.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyIcon}>📂</Text>
-        <Text style={styles.emptyText}>No files yet</Text>
-        <Text style={styles.emptySubtext}>Create a note to get started</Text>
+        <Text style={styles.emptyTitle}>No notes yet</Text>
+        <Text style={styles.emptySubtext}>
+          Tap + to create your first note
+        </Text>
       </View>
     );
   }
@@ -148,12 +149,12 @@ export function FileTree({
         isVisible={contextMenuVisible}
         onBackdropPress={closeContextMenu}
         onBackButtonPress={closeContextMenu}
-        backdropOpacity={0.4}
+        backdropOpacity={0.5}
         style={styles.modal}
         animationIn="fadeIn"
         animationOut="fadeOut"
-        animationInTiming={150}
-        animationOutTiming={100}
+        animationInTiming={120}
+        animationOutTiming={80}
         useNativeDriverForBackdrop>
         <View style={styles.contextMenu}>
           {selectedNode && (
@@ -169,14 +170,21 @@ export function FileTree({
               style={({pressed}) => [
                 styles.contextMenuItem,
                 pressed && styles.contextMenuItemPressed,
-                index === contextMenuActions.length - 1 && styles.contextMenuItemLast,
+                index === contextMenuActions.length - 1 &&
+                  styles.contextMenuItemLast,
               ]}
               onPress={action.onPress}>
-              <Text style={styles.contextMenuIcon}>{action.icon}</Text>
+              <Text
+                style={[
+                  styles.contextMenuIcon,
+                  action.destructive && styles.contextMenuDestructive,
+                ]}>
+                {action.icon}
+              </Text>
               <Text
                 style={[
                   styles.contextMenuLabel,
-                  action.destructive && styles.contextMenuLabelDestructive,
+                  action.destructive && styles.contextMenuDestructive,
                 ]}>
                 {action.label}
               </Text>
@@ -198,19 +206,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    paddingBottom: 80,
   },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  emptyText: {
-    color: '#888',
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
+  emptyTitle: {
+    color: '#888888',
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 6,
   },
   emptySubtext: {
-    color: '#666',
+    color: '#555555',
     fontSize: 14,
     textAlign: 'center',
   },
@@ -219,45 +224,42 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   contextMenu: {
-    backgroundColor: '#2a2a2a',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 32,
+    backgroundColor: '#262626',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    paddingBottom: 34,
   },
   contextMenuHeader: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3a3a3a',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#333333',
   },
   contextMenuTitle: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#dcddde',
+    fontSize: 15,
     fontWeight: '600',
-    textAlign: 'center',
   },
   contextMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3a3a3a',
   },
   contextMenuItemPressed: {
-    backgroundColor: '#3a3a3a',
+    backgroundColor: '#333333',
   },
-  contextMenuItemLast: {
-    borderBottomWidth: 0,
-  },
+  contextMenuItemLast: {},
   contextMenuIcon: {
-    fontSize: 18,
-    marginRight: 14,
+    fontSize: 16,
+    color: '#888888',
+    width: 24,
   },
   contextMenuLabel: {
-    color: '#e0e0e0',
-    fontSize: 16,
+    color: '#dcddde',
+    fontSize: 15,
   },
-  contextMenuLabelDestructive: {
-    color: '#ff6b6b',
+  contextMenuDestructive: {
+    color: '#ef4444',
   },
 });
