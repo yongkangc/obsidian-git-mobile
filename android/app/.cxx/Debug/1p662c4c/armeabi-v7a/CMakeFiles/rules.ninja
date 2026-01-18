@@ -51,6 +51,26 @@ rule CXX_COMPILER__react_codegen_rnasyncstorage_Debug
 #############################################
 # Rule for compiling CXX files.
 
+rule CXX_COMPILER__react_codegen_rnblurview_Debug
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /home/yk/android-sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=armv7-none-linux-androideabi24 --sysroot=/home/yk/android-sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building CXX object $out
+
+
+#############################################
+# Rule for compiling CXX files.
+
+rule CXX_COMPILER__react_codegen_RNMenuViewSpec_Debug
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /home/yk/android-sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=armv7-none-linux-androideabi24 --sysroot=/home/yk/android-sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building CXX object $out
+
+
+#############################################
+# Rule for compiling CXX files.
+
 rule CXX_COMPILER__react_codegen_rngesturehandler_codegen_Debug
   depfile = $DEP_FILE
   deps = gcc

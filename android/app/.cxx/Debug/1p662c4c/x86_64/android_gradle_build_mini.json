@@ -1,6 +1,8 @@
 {
   "buildFiles": [
     "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-keychain/android/build/generated/source/codegen/jni/CMakeLists.txt",
@@ -41,8 +43,18 @@
         "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
       ]
     },
+    "react_codegen_rnblurview::@9a34ffec6e39b5c9049e": {
+      "artifactName": "react_codegen_rnblurview",
+      "abi": "x86_64",
+      "runtimeFiles": []
+    },
     "react_codegen_rngesturehandler_codegen::@39f233abcd2c728bc6ec": {
       "artifactName": "react_codegen_rngesturehandler_codegen",
+      "abi": "x86_64",
+      "runtimeFiles": []
+    },
+    "react_codegen_RNMenuViewSpec::@8c49e93dd4e1930e04c8": {
+      "artifactName": "react_codegen_RNMenuViewSpec",
       "abi": "x86_64",
       "runtimeFiles": []
     },

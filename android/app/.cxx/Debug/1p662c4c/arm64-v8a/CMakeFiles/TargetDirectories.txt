@@ -4,6 +4,12 @@
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rnasyncstorage_autolinked_build/CMakeFiles/react_codegen_rnasyncstorage.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rnasyncstorage_autolinked_build/CMakeFiles/edit_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rnasyncstorage_autolinked_build/CMakeFiles/rebuild_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rnblurview_autolinked_build/CMakeFiles/react_codegen_rnblurview.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rnblurview_autolinked_build/CMakeFiles/edit_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rnblurview_autolinked_build/CMakeFiles/rebuild_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/RNMenuViewSpec_autolinked_build/CMakeFiles/react_codegen_RNMenuViewSpec.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/RNMenuViewSpec_autolinked_build/CMakeFiles/edit_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/RNMenuViewSpec_autolinked_build/CMakeFiles/rebuild_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rngesturehandler_codegen_autolinked_build/CMakeFiles/react_codegen_rngesturehandler_codegen.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rngesturehandler_codegen_autolinked_build/CMakeFiles/edit_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/arm64-v8a/rngesturehandler_codegen_autolinked_build/CMakeFiles/rebuild_cache.dir

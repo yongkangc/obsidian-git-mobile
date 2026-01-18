@@ -1,6 +1,8 @@
 {
   "buildFiles": [
     "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-keychain/android/build/generated/source/codegen/jni/CMakeLists.txt",
@@ -50,6 +52,11 @@
       "abi": "x86_64",
       "artifactName": "react_codegen_RNKeychainSpec"
     },
+    "react_codegen_RNMenuViewSpec::@8c49e93dd4e1930e04c8": {
+      "toolchain": "toolchain",
+      "abi": "x86_64",
+      "artifactName": "react_codegen_RNMenuViewSpec"
+    },
     "react_codegen_RNQuickSQLite::@d4788b5f7ed46b82c45a": {
       "toolchain": "toolchain",
       "abi": "x86_64",
@@ -59,6 +66,11 @@
       "toolchain": "toolchain",
       "abi": "x86_64",
       "artifactName": "react_codegen_rnasyncstorage"
+    },
+    "react_codegen_rnblurview::@9a34ffec6e39b5c9049e": {
+      "toolchain": "toolchain",
+      "abi": "x86_64",
+      "artifactName": "react_codegen_rnblurview"
     },
     "react_codegen_rngesturehandler_codegen::@39f233abcd2c728bc6ec": {
       "toolchain": "toolchain",

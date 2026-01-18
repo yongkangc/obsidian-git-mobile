@@ -53,17 +53,18 @@ export const FileTreeItem = React.memo(function FileTreeItem({
   const scale = useRef(new Animated.Value(1)).current;
 
   const menuActions: ContextMenuAction[] = useMemo(() => {
-    const actions: ContextMenuAction[] = [
+    if (Platform.OS === 'ios') {
+      return [
+        {title: 'Rename', systemIcon: 'pencil'},
+        {title: 'Move to...', systemIcon: 'folder'},
+        {title: 'Delete', systemIcon: 'trash', destructive: true},
+      ];
+    }
+    return [
       {title: 'Rename'},
       {title: 'Move to...'},
       {title: 'Delete', destructive: true},
     ];
-    if (Platform.OS === 'ios') {
-      actions[0].systemIcon = 'pencil';
-      actions[1].systemIcon = 'folder';
-      actions[2].systemIcon = 'trash';
-    }
-    return actions;
   }, []);
 
   const handleMenuPress = useCallback((e: {nativeEvent: {index: number; name: string}}) => {

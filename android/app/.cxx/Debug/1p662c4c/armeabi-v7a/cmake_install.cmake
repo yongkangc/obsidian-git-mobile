@@ -45,6 +45,8 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/armeabi-v7a/rnasyncstorage_autolinked_build/cmake_install.cmake")
+  include("/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/armeabi-v7a/rnblurview_autolinked_build/cmake_install.cmake")
+  include("/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/armeabi-v7a/RNMenuViewSpec_autolinked_build/cmake_install.cmake")
   include("/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/armeabi-v7a/rngesturehandler_codegen_autolinked_build/cmake_install.cmake")
   include("/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/armeabi-v7a/RNHapticFeedbackSpec_autolinked_build/cmake_install.cmake")
   include("/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/armeabi-v7a/RNKeychainSpec_autolinked_build/cmake_install.cmake")

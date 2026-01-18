@@ -28,6 +28,86 @@
         }
       }
     },
+    "@react-native-community/blur": {
+      "root": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur",
+      "name": "@react-native-community/blur",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/react-native-blur.podspec",
+          "version": "4.4.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android",
+          "packageImportPath": "import com.reactnativecommunity.blurview.BlurViewPackage;",
+          "packageInstance": "new BlurViewPackage()",
+          "buildTypes": [],
+          "libraryName": "rnblurview",
+          "componentDescriptors": [
+            "BlurViewComponentDescriptor",
+            "AndroidBlurViewComponentDescriptor",
+            "VibrancyViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-menu/menu": {
+      "root": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu",
+      "name": "@react-native-menu/menu",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/react-native-menu.podspec",
+          "version": "2.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android",
+          "packageImportPath": "import com.reactnativemenu.MenuPackage;",
+          "packageInstance": "new MenuPackage()",
+          "buildTypes": [],
+          "libraryName": "RNMenuViewSpec",
+          "componentDescriptors": [
+            "MenuViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-context-menu-view": {
+      "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-context-menu-view",
+      "name": "react-native-context-menu-view",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-context-menu-view/react-native-context-menu-view.podspec",
+          "version": "1.21.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-context-menu-view/android",
+          "packageImportPath": "import com.mpiannucci.reactnativecontextmenu.ContextMenuPackage;",
+          "packageInstance": "new ContextMenuPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-context-menu-view/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-fs": {
       "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-fs",
       "name": "react-native-fs",

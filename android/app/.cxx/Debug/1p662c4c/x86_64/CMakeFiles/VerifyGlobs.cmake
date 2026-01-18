@@ -36,6 +36,54 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/CMakeFiles/cmake.verify_globs")
 endif()
 
+# react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/rnblurview-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/react/renderer/components/rnblurview/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/react/renderer/components/rnblurview/ComponentDescriptors.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/react/renderer/components/rnblurview/EventEmitters.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/react/renderer/components/rnblurview/Props.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/react/renderer/components/rnblurview/ShadowNodes.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-community/blur/android/build/generated/source/codegen/jni/react/renderer/components/rnblurview/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/RNMenuViewSpec-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/react/renderer/components/RNMenuViewSpec/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/react/renderer/components/RNMenuViewSpec/ComponentDescriptors.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/react/renderer/components/RNMenuViewSpec/EventEmitters.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/react/renderer/components/RNMenuViewSpec/Props.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/react/renderer/components/RNMenuViewSpec/ShadowNodes.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-menu/menu/android/build/generated/source/codegen/jni/react/renderer/components/RNMenuViewSpec/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/CMakeFiles/cmake.verify_globs")
+endif()
+
 # react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/*.cpp")
 set(OLD_GLOB
