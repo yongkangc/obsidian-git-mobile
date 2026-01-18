@@ -1,1 +1,0 @@
-/home/yk/oss/obsidian-git-mobile/android/app/build/intermediates/cxx/Debug/1p662c4c/obj/arm64-v8a

@@ -1,7 +1,7 @@
 import React from 'react';
-import {View, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Text} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import {colors, radius, touchTargets} from '../../theme';
+import {colors, radius, touchTargets, typography} from '../../theme';
 import {haptics} from '../../utils/haptics';
 
 export interface FormatState {
@@ -25,6 +25,10 @@ export interface EditorToolbarProps {
   canUndo?: boolean;
   canRedo?: boolean;
   formatState?: FormatState;
+  focusMode?: boolean;
+  onToggleFocusMode?: () => void;
+  wordCount?: number;
+  charCount?: number;
 }
 
 interface IconProps {
@@ -151,6 +155,27 @@ function RedoIcon({size = 20, color = '#888888'}: IconProps) {
   );
 }
 
+function FocusModeIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 5v14M5 12h14"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={0.3}
+      />
+      <Path
+        d="M12 8v8"
+        stroke={color}
+        strokeWidth={3}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
 interface ToolbarButton {
   icon: React.ComponentType<IconProps>;
   onPress: () => void;
@@ -179,6 +204,10 @@ export function EditorToolbar({
   canUndo = false,
   canRedo = false,
   formatState = defaultFormatState,
+  focusMode = false,
+  onToggleFocusMode,
+  wordCount,
+  charCount,
 }: EditorToolbarProps): React.JSX.Element {
   const handlePress = (action: () => void) => {
     haptics.impactLight();
@@ -193,6 +222,8 @@ export function EditorToolbar({
     {icon: LinkIcon, onPress: onLink, accessibilityLabel: 'Link', stateKey: 'link'},
     {icon: CodeIcon, onPress: onCode, accessibilityLabel: 'Code', stateKey: 'code'},
   ];
+
+  const showWordCount = wordCount !== undefined && charCount !== undefined;
 
   return (
     <View style={styles.container}>
@@ -227,26 +258,46 @@ export function EditorToolbar({
             />
           </TouchableOpacity>
         )}
-        <View style={styles.separator} />
-        {buttons.map(button => {
-          const isActive = formatState[button.stateKey];
-          return (
-            <TouchableOpacity
-              key={button.accessibilityLabel}
-              style={[styles.button, isActive && styles.buttonActive]}
-              onPress={() => handlePress(button.onPress)}
-              accessibilityLabel={button.accessibilityLabel}
-              accessibilityRole="button"
-              accessibilityState={{selected: isActive}}
-              activeOpacity={0.7}>
-              <button.icon
-                size={20}
-                color={isActive ? colors.accent : colors.textPlaceholder}
-              />
-            </TouchableOpacity>
-          );
-        })}
+        <View style={styles.formatGroup}>
+          {buttons.map(button => {
+            const isActive = formatState[button.stateKey];
+            return (
+              <TouchableOpacity
+                key={button.accessibilityLabel}
+                style={[styles.button, isActive && styles.buttonActive]}
+                onPress={() => handlePress(button.onPress)}
+                accessibilityLabel={button.accessibilityLabel}
+                accessibilityRole="button"
+                accessibilityState={{selected: isActive}}
+                activeOpacity={0.7}>
+                <button.icon
+                  size={20}
+                  color={isActive ? colors.accent : colors.textPlaceholder}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {onToggleFocusMode && (
+          <TouchableOpacity
+            style={[styles.button, focusMode && styles.buttonActive]}
+            onPress={() => handlePress(onToggleFocusMode)}
+            accessibilityLabel="Focus Mode"
+            accessibilityRole="button"
+            accessibilityState={{selected: focusMode}}
+            activeOpacity={0.7}>
+            <FocusModeIcon
+              size={20}
+              color={focusMode ? colors.accent : colors.textPlaceholder}
+            />
+          </TouchableOpacity>
+        )}
       </View>
+      {showWordCount && (
+        <Text style={styles.wordCount}>
+          {wordCount} words · {charCount} chars
+        </Text>
+      )}
     </View>
   );
 }
@@ -277,10 +328,20 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.5,
   },
-  separator: {
-    width: 1,
-    height: 24,
-    backgroundColor: colors.border,
-    marginHorizontal: 4,
+  formatGroup: {
+    flexDirection: 'row',
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    marginLeft: 8,
+    paddingHorizontal: 4,
+    gap: 4,
+  },
+  wordCount: {
+    color: colors.textMuted,
+    fontSize: typography.sizes.xs,
+    textAlign: 'center',
+    marginTop: 6,
   },
 });

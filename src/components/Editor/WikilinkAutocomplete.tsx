@@ -1,11 +1,11 @@
-import React, {useMemo, useCallback} from 'react';
+import React, {useMemo, useCallback, useEffect, useRef} from 'react';
 import {
-  View,
   Text,
   FlatList,
   Pressable,
   StyleSheet,
   Keyboard,
+  Animated,
 } from 'react-native';
 import {fuzzyMatch} from '../../utils/markdown';
 import {colors, radius, touchTargets} from '../../theme';
@@ -32,6 +32,17 @@ export function WikilinkAutocomplete({
   maxResults = 8,
 }: WikilinkAutocompleteProps): React.JSX.Element | null {
   void _onDismiss;
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
   const matches = useMemo(() => {
     const titles = getFileTitles();
     if (!query) {
@@ -78,7 +89,7 @@ export function WikilinkAutocomplete({
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, {opacity: fadeAnim}]}>
       <FlatList
         data={matches}
         renderItem={renderItem}
@@ -86,7 +97,7 @@ export function WikilinkAutocomplete({
         keyboardShouldPersistTaps="handled"
         style={styles.list}
       />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -97,15 +108,15 @@ const styles = StyleSheet.create({
     left: 24,
     right: 24,
     maxHeight: 240,
-    backgroundColor: colors.backgroundModal,
-    borderRadius: radius.lg,
+    backgroundColor: colors.backgroundElevated,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
     zIndex: 100,
     overflow: 'hidden',
   },
@@ -121,7 +132,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   itemPressed: {
-    backgroundColor: colors.backgroundElevated,
+    backgroundColor: colors.accentMuted,
   },
   itemText: {
     color: colors.accent,
