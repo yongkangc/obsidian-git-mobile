@@ -1,5 +1,5 @@
 import React, {useCallback, useRef, useState} from 'react';
-import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
+import {View, Text, StyleSheet, Pressable, Animated, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -8,7 +8,10 @@ import type {RootStackParamList} from '../../App';
 import {useVaultStore} from '../store';
 import {useVaultLoader} from '../hooks/useVaultLoader';
 import {FileTree, QuickSwitcher, RecentNotes} from '../components';
+import {gitSync} from '../services/git-sync';
 import type {FileNode, SyncStatus} from '../types';
+import {colors, touchTargets, radius} from '../theme';
+import {haptics} from '../utils/haptics';
 
 type VaultScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -17,10 +20,10 @@ type VaultScreenNavigationProp = NativeStackNavigationProp<
 
 const statusConfig: Record<SyncStatus['state'], {color: string; label: string}> =
   {
-    synced: {color: '#10b981', label: 'Synced'},
-    pending: {color: '#f59e0b', label: 'Pending'},
-    offline: {color: '#6b7280', label: 'Offline'},
-    error: {color: '#ef4444', label: 'Error'},
+    synced: {color: colors.success, label: 'Synced'},
+    pending: {color: colors.warning, label: 'Pending'},
+    offline: {color: colors.offline, label: 'Offline'},
+    error: {color: colors.error, label: 'Error'},
   };
 
 interface SyncDetailsModalProps {
@@ -108,7 +111,10 @@ function SyncDetailsModal({
             styles.syncNowButton,
             pressed && styles.syncNowButtonPressed,
           ]}
-          onPress={onSyncNow}>
+          onPress={() => {
+            haptics.impactMedium();
+            onSyncNow();
+          }}>
           <Text style={styles.syncNowButtonText}>Sync Now</Text>
         </Pressable>
       </View>
@@ -142,6 +148,7 @@ function FAB({onPress}: FABProps): React.JSX.Element {
   const scale = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
+    haptics.impactLight();
     Animated.timing(scale, {
       toValue: 0.92,
       duration: 80,
@@ -195,11 +202,9 @@ function HeaderAction({icon, onPress}: HeaderActionProps): React.JSX.Element {
 
 export function VaultScreen(): React.JSX.Element {
   const navigation = useNavigation<VaultScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
   const vaultName = useVaultStore(state => state.vaultName);
   const currentPath = useVaultStore(state => state.currentPath);
-  const setQuickSwitcherVisible = useVaultStore(
-    state => state.setQuickSwitcherVisible,
-  );
   const setCurrentPath = useVaultStore(state => state.setCurrentPath);
   const [syncModalVisible, setSyncModalVisible] = useState(false);
 
@@ -213,11 +218,47 @@ export function VaultScreen(): React.JSX.Element {
     setSyncModalVisible(false);
   }, []);
 
-  const handleSyncNow = useCallback(() => {
+  const setSyncStatus = useVaultStore(state => state.setSyncStatus);
+
+  const handleSyncNow = useCallback(async () => {
     setSyncModalVisible(false);
-    // TODO: Trigger actual sync
-    console.log('Sync triggered');
-  }, []);
+
+    setSyncStatus({
+      state: 'pending',
+      pendingChanges: 0,
+      lastSyncAt: null,
+    });
+
+    try {
+      const pullResult = await gitSync.pull();
+
+      const syncQueue = useVaultStore.getState().syncQueue;
+      if (syncQueue.length > 0) {
+        await gitSync.commitAndPush('Sync from Obsidian Git Mobile');
+        useVaultStore.getState().clearSyncQueue();
+      }
+
+      const status = await gitSync.status();
+      setSyncStatus(status);
+
+      if (pullResult.conflicts.length > 0) {
+        Alert.alert(
+          'Sync Complete',
+          `Updated ${pullResult.updated.length} files. ${pullResult.conflicts.length} conflicts resolved (local kept).`,
+        );
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      setSyncStatus({
+        state: 'error',
+        pendingChanges: 0,
+        lastSyncAt: null,
+        error: errorMessage,
+      });
+      Alert.alert('Sync Failed', errorMessage);
+    }
+  }, [setSyncStatus]);
 
   const handleFileSelect = useCallback(
     (path: string) => {
@@ -225,10 +266,6 @@ export function VaultScreen(): React.JSX.Element {
     },
     [navigation],
   );
-
-  const handleQuickSwitch = useCallback(() => {
-    setQuickSwitcherVisible(true);
-  }, [setQuickSwitcherVisible]);
 
   const handleNewNote = useCallback(() => {
     navigation.navigate('Editor', {path: ''});
@@ -250,6 +287,10 @@ export function VaultScreen(): React.JSX.Element {
     console.log('Move:', node.path);
   }, []);
 
+  const handleSearch = useCallback(() => {
+    navigation.navigate('Search');
+  }, [navigation]);
+
   const handleBreadcrumbNavigate = useCallback(
     (index: number) => {
       if (index === 0) {
@@ -265,13 +306,13 @@ export function VaultScreen(): React.JSX.Element {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, {paddingTop: insets.top + 12}]}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>{vaultName}</Text>
           <SyncStatusIndicator onPress={handleSyncPress} />
         </View>
         <View style={styles.headerActions}>
-          <HeaderAction icon="⌘" onPress={handleQuickSwitch} />
+          <HeaderAction icon="🔍" onPress={handleSearch} />
           <HeaderAction icon="⚙" onPress={handleSettings} />
         </View>
       </View>
@@ -327,27 +368,26 @@ export function VaultScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1e1e1e',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#333333',
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    backgroundColor: colors.background,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   headerTitle: {
-    color: '#dcddde',
-    fontSize: 18,
-    fontWeight: '600',
-    letterSpacing: -0.3,
+    color: colors.textPrimary,
+    fontSize: 34,
+    fontWeight: '700',
+    letterSpacing: -0.5,
   },
   headerActions: {
     flexDirection: 'row',
@@ -355,48 +395,51 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   headerAction: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerActionPressed: {
-    backgroundColor: '#262626',
+    backgroundColor: colors.backgroundElevated,
   },
   headerActionIcon: {
-    fontSize: 16,
-    color: '#888888',
+    fontSize: 18,
+    color: colors.textPlaceholder,
   },
   syncIndicator: {
-    padding: 4,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   syncDot: {
-    width: 7,
-    height: 7,
+    width: 8,
+    height: 8,
     borderRadius: 4,
   },
   breadcrumb: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     gap: 6,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#333333',
+    borderBottomColor: colors.border,
   },
   breadcrumbText: {
-    color: '#888888',
+    color: colors.textPlaceholder,
     fontSize: 13,
   },
   breadcrumbTextActive: {
-    color: '#dcddde',
+    color: colors.textSecondary,
   },
   breadcrumbPressed: {
     opacity: 0.6,
   },
   breadcrumbSeparator: {
-    color: '#555555',
+    color: colors.textDisabled,
     fontSize: 13,
   },
   treeContainer: {
@@ -404,24 +447,24 @@ const styles = StyleSheet.create({
   },
   fabContainer: {
     position: 'absolute',
-    right: 20,
+    right: 24,
   },
   fab: {
-    width: 52,
-    height: 52,
+    width: touchTargets.large,
+    height: touchTargets.large,
     borderRadius: 14,
-    backgroundColor: '#7c3aed',
+    backgroundColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#7c3aed',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowColor: colors.accent,
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 6,
   },
   fabIcon: {
     fontSize: 28,
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontWeight: '300',
     marginTop: -2,
   },
@@ -430,18 +473,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   syncModalContent: {
-    backgroundColor: '#2a2a2a',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    backgroundColor: colors.backgroundElevated,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     paddingBottom: 32,
   },
   syncModalHeader: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#3a3a3a',
+    borderBottomColor: colors.border,
   },
   syncModalTitle: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
@@ -457,7 +500,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   syncStatusLabel: {
-    color: '#888888',
+    color: colors.textPlaceholder,
     fontSize: 15,
   },
   syncStatusValue: {
@@ -475,33 +518,35 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   syncStatusValueText: {
-    color: '#dcddde',
+    color: colors.textSecondary,
     fontSize: 15,
   },
   syncErrorRow: {
     paddingVertical: 12,
     paddingHorizontal: 12,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderRadius: 8,
+    borderRadius: radius.sm,
     marginTop: 8,
   },
   syncErrorText: {
-    color: '#ef4444',
+    color: colors.error,
     fontSize: 14,
   },
   syncNowButton: {
     marginHorizontal: 20,
     marginTop: 8,
-    backgroundColor: '#7c3aed',
+    backgroundColor: colors.accent,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: radius.md,
     alignItems: 'center',
+    minHeight: touchTargets.comfortable,
+    justifyContent: 'center',
   },
   syncNowButtonPressed: {
-    backgroundColor: '#6d28d9',
+    backgroundColor: colors.accentPressed,
   },
   syncNowButtonText: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },

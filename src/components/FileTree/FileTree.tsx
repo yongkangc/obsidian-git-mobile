@@ -5,6 +5,7 @@ import Modal from 'react-native-modal';
 import {useVaultStore} from '../../store';
 import {FileTreeItem} from './FileTreeItem';
 import type {FileNode} from '../../types';
+import {colors, radius, touchTargets} from '../../theme';
 
 interface FlattenedNode {
   node: FileNode;
@@ -199,7 +200,7 @@ export function FileTree({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1e1e1e',
+    backgroundColor: colors.background,
   },
   emptyContainer: {
     flex: 1,
@@ -209,14 +210,14 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   emptyTitle: {
-    color: '#888888',
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 6,
+    color: colors.textPlaceholder,
+    fontSize: 15,
+    fontWeight: '400',
+    marginBottom: 8,
   },
   emptySubtext: {
-    color: '#555555',
-    fontSize: 14,
+    color: colors.textPlaceholder,
+    fontSize: 13,
     textAlign: 'center',
   },
   modal: {
@@ -224,19 +225,22 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   contextMenu: {
-    backgroundColor: '#262626',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    backgroundColor: colors.backgroundCard,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
     paddingBottom: 34,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: colors.border,
   },
   contextMenuHeader: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#333333',
+    borderBottomColor: colors.border,
   },
   contextMenuTitle: {
-    color: '#dcddde',
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -244,22 +248,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    minHeight: touchTargets.comfortable,
   },
   contextMenuItemPressed: {
-    backgroundColor: '#333333',
+    backgroundColor: colors.border,
   },
   contextMenuItemLast: {},
   contextMenuIcon: {
     fontSize: 16,
-    color: '#888888',
+    color: colors.textPlaceholder,
     width: 24,
   },
   contextMenuLabel: {
-    color: '#dcddde',
+    color: colors.textSecondary,
     fontSize: 15,
   },
   contextMenuDestructive: {
-    color: '#ef4444',
+    color: colors.error,
   },
 });

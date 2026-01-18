@@ -80,6 +80,9 @@ describe('Type Interface Compliance', () => {
   describe('IndexDB Interface', () => {
     it('should define all required methods', () => {
       const mockIndexDB: IndexDB = {
+        init: jest.fn(),
+        isReady: jest.fn(),
+        waitUntilReady: jest.fn(),
         upsertFileMeta: jest.fn(),
         getFileMeta: jest.fn(),
         getAllFiles: jest.fn(),
@@ -88,6 +91,7 @@ describe('Type Interface Compliance', () => {
         ftsUpsert: jest.fn(),
         ftsSearch: jest.fn(),
         deleteFileMeta: jest.fn(),
+        close: jest.fn(),
       };
 
       expect(mockIndexDB.upsertFileMeta).toBeDefined();

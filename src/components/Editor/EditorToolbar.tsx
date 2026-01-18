@@ -1,74 +1,210 @@
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, StyleSheet} from 'react-native';
+import Svg, {Path} from 'react-native-svg';
+import {colors, radius, touchTargets} from '../../theme';
+import {haptics} from '../../utils/haptics';
+
+export interface FormatState {
+  bold: boolean;
+  italic: boolean;
+  code: boolean;
+  heading: boolean;
+  list: boolean;
+  link: boolean;
+}
 
 export interface EditorToolbarProps {
   onBold: () => void;
   onItalic: () => void;
   onLink: () => void;
   onHeading: () => void;
+  onList: () => void;
+  onCode: () => void;
+  formatState?: FormatState;
+}
+
+interface IconProps {
+  size?: number;
+  color?: string;
+}
+
+function BoldIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6V4zm0 8h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6v-8z"
+        stroke={color}
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function ItalicIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M19 4h-9M14 20H5M15 4l-6 16"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function LinkIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function HeadingIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M4 12h8M4 18V6M12 18V6M17 10l3 2-3 2M17 6v12"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function ListIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function CodeIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="m16 18 6-6-6-6M8 6l-6 6 6 6"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
 }
 
 interface ToolbarButton {
-  label: string;
+  icon: React.ComponentType<IconProps>;
   onPress: () => void;
   accessibilityLabel: string;
+  stateKey: keyof FormatState;
 }
+
+const defaultFormatState: FormatState = {
+  bold: false,
+  italic: false,
+  code: false,
+  heading: false,
+  list: false,
+  link: false,
+};
 
 export function EditorToolbar({
   onBold,
   onItalic,
   onLink,
   onHeading,
+  onList,
+  onCode,
+  formatState = defaultFormatState,
 }: EditorToolbarProps): React.JSX.Element {
+  const handlePress = (action: () => void) => {
+    haptics.impactLight();
+    action();
+  };
+
   const buttons: ToolbarButton[] = [
-    {label: 'B', onPress: onBold, accessibilityLabel: 'Bold'},
-    {label: 'I', onPress: onItalic, accessibilityLabel: 'Italic'},
-    {label: '🔗', onPress: onLink, accessibilityLabel: 'Link'},
-    {label: 'H', onPress: onHeading, accessibilityLabel: 'Heading'},
+    {icon: BoldIcon, onPress: onBold, accessibilityLabel: 'Bold', stateKey: 'bold'},
+    {icon: ItalicIcon, onPress: onItalic, accessibilityLabel: 'Italic', stateKey: 'italic'},
+    {icon: HeadingIcon, onPress: onHeading, accessibilityLabel: 'Heading', stateKey: 'heading'},
+    {icon: ListIcon, onPress: onList, accessibilityLabel: 'List', stateKey: 'list'},
+    {icon: LinkIcon, onPress: onLink, accessibilityLabel: 'Link', stateKey: 'link'},
+    {icon: CodeIcon, onPress: onCode, accessibilityLabel: 'Code', stateKey: 'code'},
   ];
 
   return (
     <View style={styles.container}>
-      {buttons.map((button) => (
-        <TouchableOpacity
-          key={button.label}
-          style={styles.button}
-          onPress={button.onPress}
-          accessibilityLabel={button.accessibilityLabel}
-          accessibilityRole="button"
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.buttonText, button.label === 'I' && styles.italic]}>
-            {button.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
+      <View style={styles.buttonGroup}>
+        {buttons.map(button => {
+          const isActive = formatState[button.stateKey];
+          return (
+            <TouchableOpacity
+              key={button.accessibilityLabel}
+              style={[styles.button, isActive && styles.buttonActive]}
+              onPress={() => handlePress(button.onPress)}
+              accessibilityLabel={button.accessibilityLabel}
+              accessibilityRole="button"
+              accessibilityState={{selected: isActive}}
+              activeOpacity={0.7}>
+              <button.icon
+                size={20}
+                color={isActive ? colors.accent : colors.textPlaceholder}
+              />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: colors.backgroundModal,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  buttonGroup: {
     flexDirection: 'row',
-    backgroundColor: '#2d2d2d',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3d3d3d',
+    justifyContent: 'center',
+    gap: 8,
   },
   button: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    backgroundColor: '#3d3d3d',
-    borderRadius: 4,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: radius.sm,
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  italic: {
-    fontStyle: 'italic',
+  buttonActive: {
+    backgroundColor: colors.accentMuted,
   },
 });

@@ -8,6 +8,7 @@ import {useSearch} from '../hooks/useSearch';
 import {useVaultStore} from '../store';
 import type {FileMeta, SearchResult} from '../types';
 import type {FileNode} from '../types';
+import {colors} from '../theme';
 
 type SearchScreenProps = NativeStackScreenProps<RootStackParamList, 'Search'>;
 
@@ -104,6 +105,6 @@ export function SearchScreen({navigation}: SearchScreenProps): React.JSX.Element
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1e1e1e',
+    backgroundColor: colors.backgroundElevated,
   },
 });

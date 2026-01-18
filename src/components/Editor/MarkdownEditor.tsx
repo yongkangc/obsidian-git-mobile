@@ -1,14 +1,18 @@
-import React, {useState, useCallback, useRef, useEffect} from 'react';
+import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react';
 import {
   TextInput,
   View,
   StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
   type TextInputSelectionChangeEventData,
   type NativeSyntheticEvent,
 } from 'react-native';
 import {useDebounce} from '../../hooks/useDebounce';
 import {WikilinkAutocomplete} from './WikilinkAutocomplete';
-import {EditorToolbar} from './EditorToolbar';
+import {EditorToolbar, type FormatState} from './EditorToolbar';
+import {StyledMarkdownOverlay} from './StyledMarkdownOverlay';
+import {colors} from '../../theme';
 
 export interface MarkdownEditorProps {
   initialContent: string;
@@ -28,7 +32,7 @@ export function MarkdownEditor({
   onSave,
   onGetFileTitles,
   debounceMs = 500,
-  placeholder = 'Start typing...',
+  placeholder = '',
 }: MarkdownEditorProps): React.JSX.Element {
   const [text, setText] = useState(initialContent);
   const [selection, setSelection] = useState<Selection>({start: 0, end: 0});
@@ -106,7 +110,8 @@ export function MarkdownEditor({
       setText(newText);
       debouncedSave(newText);
 
-      const newCursorPos = start + prefix.length + selectedText.length + suffix.length;
+      const newCursorPos =
+        start + prefix.length + selectedText.length + suffix.length;
       setTimeout(() => {
         inputRef.current?.setNativeProps({
           selection: {start: newCursorPos, end: newCursorPos},
@@ -116,9 +121,22 @@ export function MarkdownEditor({
     [selection, text, debouncedSave],
   );
 
-  const handleBold = useCallback(() => insertFormatting('**'), [insertFormatting]);
-  const handleItalic = useCallback(() => insertFormatting('*'), [insertFormatting]);
-  const handleLink = useCallback(() => insertFormatting('[', '](url)'), [insertFormatting]);
+  const handleBold = useCallback(
+    () => insertFormatting('**'),
+    [insertFormatting],
+  );
+  const handleItalic = useCallback(
+    () => insertFormatting('*'),
+    [insertFormatting],
+  );
+  const handleLink = useCallback(
+    () => insertFormatting('[', '](url)'),
+    [insertFormatting],
+  );
+  const handleCode = useCallback(
+    () => insertFormatting('`'),
+    [insertFormatting],
+  );
   const handleHeading = useCallback(() => {
     const {start} = selection;
     const lineStart = text.lastIndexOf('\n', start - 1) + 1;
@@ -128,16 +146,51 @@ export function MarkdownEditor({
     setText(newText);
     debouncedSave(newText);
   }, [selection, text, debouncedSave]);
+  const handleList = useCallback(() => {
+    const {start} = selection;
+    const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+    const before = text.slice(0, lineStart);
+    const lineAndAfter = text.slice(lineStart);
+    const newText = `${before}- ${lineAndAfter}`;
+    setText(newText);
+    debouncedSave(newText);
+  }, [selection, text, debouncedSave]);
+
+  const formatState = useMemo((): FormatState => {
+    const {start} = selection;
+    const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+    const lineEnd = text.indexOf('\n', start);
+    const currentLine = text.slice(lineStart, lineEnd === -1 ? undefined : lineEnd);
+
+    const textBefore = text.slice(0, start);
+    const textAfter = text.slice(start);
+
+    const isInBold = /\*\*[^*]*$/.test(textBefore) && /^[^*]*\*\*/.test(textAfter);
+    const isInItalic =
+      (/(?<!\*)\*[^*]+$/.test(textBefore) && /^[^*]+\*(?!\*)/.test(textAfter)) ||
+      (/(?<!_)_[^_]+$/.test(textBefore) && /^[^_]+_(?!_)/.test(textAfter));
+    const isInCode = /`[^`]*$/.test(textBefore) && /^[^`]*`/.test(textAfter);
+    const isHeading = /^#{1,6}\s/.test(currentLine);
+    const isList = /^(\s*[-*+]|\s*\d+\.)\s/.test(currentLine);
+    const isInLink = /\[[^\]]*$/.test(textBefore) || /\]\([^)]*$/.test(textBefore);
+
+    return {
+      bold: isInBold,
+      italic: isInItalic,
+      code: isInCode,
+      heading: isHeading,
+      list: isList,
+      link: isInLink,
+    };
+  }, [text, selection]);
 
   return (
-    <View style={styles.container}>
-      <EditorToolbar
-        onBold={handleBold}
-        onItalic={handleItalic}
-        onLink={handleLink}
-        onHeading={handleHeading}
-      />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}>
       <View style={styles.editorContainer}>
+        <StyledMarkdownOverlay text={text} style={styles.overlay} />
         <TextInput
           ref={inputRef}
           style={styles.input}
@@ -146,11 +199,13 @@ export function MarkdownEditor({
           onSelectionChange={handleSelectionChange}
           multiline
           placeholder={placeholder}
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.textDisabled}
           textAlignVertical="top"
-          autoCapitalize="none"
-          autoCorrect={false}
+          autoCapitalize="sentences"
+          autoCorrect
           scrollEnabled
+          selectionColor={colors.accent}
+          caretHidden={false}
         />
         {showAutocomplete && (
           <WikilinkAutocomplete
@@ -161,25 +216,46 @@ export function MarkdownEditor({
           />
         )}
       </View>
-    </View>
+      <EditorToolbar
+        onBold={handleBold}
+        onItalic={handleItalic}
+        onLink={handleLink}
+        onHeading={handleHeading}
+        onList={handleList}
+        onCode={handleCode}
+        formatState={formatState}
+      />
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1e1e1e',
+    backgroundColor: colors.backgroundModal,
   },
   editorContainer: {
     flex: 1,
     position: 'relative',
   },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
   input: {
     flex: 1,
-    color: '#ffffff',
-    fontSize: 16,
-    fontFamily: 'monospace',
-    padding: 16,
-    lineHeight: 24,
+    color: 'transparent',
+    fontSize: 18,
+    fontFamily: undefined,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
+    lineHeight: 30,
+    zIndex: 1,
+    backgroundColor: 'transparent',
   },
 });

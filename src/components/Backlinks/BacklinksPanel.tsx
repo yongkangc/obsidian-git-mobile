@@ -4,6 +4,7 @@ import Modal from 'react-native-modal';
 import {FlashList} from '@shopify/flash-list';
 import {BacklinkItem} from './BacklinkItem';
 import type {BacklinkInfo} from '../../hooks/useBacklinks';
+import {colors, radius, touchTargets} from '../../theme';
 
 interface BacklinksPanelProps {
   visible: boolean;
@@ -76,7 +77,7 @@ export function BacklinksPanel({
         <View style={styles.content}>
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#7c3aed" />
+              <ActivityIndicator size="large" color={colors.accent} />
             </View>
           ) : backlinks.length > 0 ? (
             <FlashList
@@ -106,11 +107,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: '#1e1e1e',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: colors.backgroundElevated,
+    borderTopLeftRadius: radius.xxl,
+    borderTopRightRadius: radius.xxl,
     maxHeight: '70%',
     minHeight: 200,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: colors.border,
   },
   handleContainer: {
     alignItems: 'center',
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 36,
     height: 4,
-    backgroundColor: '#555',
+    backgroundColor: colors.textDisabled,
     borderRadius: 2,
   },
   header: {
@@ -128,7 +132,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
+    borderBottomColor: colors.border,
   },
   headerIcon: {
     fontSize: 18,
@@ -136,16 +140,18 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    color: '#e0e0e0',
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
   closeButton: {
-    padding: 8,
-    marginRight: -8,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   closeButtonText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 16,
   },
   content: {
@@ -171,12 +177,12 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   emptyText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 16,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#666',
+    color: colors.textPlaceholder,
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',

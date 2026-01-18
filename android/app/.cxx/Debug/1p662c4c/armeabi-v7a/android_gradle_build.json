@@ -2,10 +2,12 @@
   "buildFiles": [
     "/home/yk/oss/obsidian-git-mobile/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-keychain/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-quick-sqlite/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
+    "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-worklets/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/home/yk/oss/obsidian-git-mobile/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup/CMakeLists.txt"
   ],
@@ -32,10 +34,16 @@
       "runtimeFiles": [
         "/home/yk/oss/obsidian-git-mobile/android/app/build/intermediates/cxx/Debug/1p662c4c/obj/armeabi-v7a/libreact_codegen_safeareacontext.so",
         "/home/yk/oss/obsidian-git-mobile/android/app/build/intermediates/cxx/Debug/1p662c4c/obj/armeabi-v7a/libreact_codegen_rnscreens.so",
+        "/home/yk/oss/obsidian-git-mobile/android/app/build/intermediates/cxx/Debug/1p662c4c/obj/armeabi-v7a/libreact_codegen_rnsvg.so",
         "/home/yk/.gradle/caches/8.13/transforms/5a4fa8ef8d2ea5d84d321a2c8a409ee0/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.armeabi-v7a/libfbjni.so",
         "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/jsi/libs/android.armeabi-v7a/libjsi.so",
         "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/reactnative/libs/android.armeabi-v7a/libreactnative.so"
       ]
+    },
+    "react_codegen_RNHapticFeedbackSpec::@a83561f277f6afbb326c": {
+      "toolchain": "toolchain",
+      "abi": "armeabi-v7a",
+      "artifactName": "react_codegen_RNHapticFeedbackSpec"
     },
     "react_codegen_RNKeychainSpec::@f9a2cb36ebca2de4baf9": {
       "toolchain": "toolchain",
@@ -62,6 +70,17 @@
       "abi": "armeabi-v7a",
       "artifactName": "react_codegen_rnscreens",
       "output": "/home/yk/oss/obsidian-git-mobile/android/app/build/intermediates/cxx/Debug/1p662c4c/obj/armeabi-v7a/libreact_codegen_rnscreens.so",
+      "runtimeFiles": [
+        "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/reactnative/libs/android.armeabi-v7a/libreactnative.so",
+        "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/jsi/libs/android.armeabi-v7a/libjsi.so",
+        "/home/yk/.gradle/caches/8.13/transforms/5a4fa8ef8d2ea5d84d321a2c8a409ee0/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.armeabi-v7a/libfbjni.so"
+      ]
+    },
+    "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65": {
+      "toolchain": "toolchain",
+      "abi": "armeabi-v7a",
+      "artifactName": "react_codegen_rnsvg",
+      "output": "/home/yk/oss/obsidian-git-mobile/android/app/build/intermediates/cxx/Debug/1p662c4c/obj/armeabi-v7a/libreact_codegen_rnsvg.so",
       "runtimeFiles": [
         "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/reactnative/libs/android.armeabi-v7a/libreactnative.so",
         "/home/yk/.gradle/caches/8.13/transforms/a5eb6650aace0b6e4adedd8cab5789b7/transformed/react-android-0.83.1-debug/prefab/modules/jsi/libs/android.armeabi-v7a/libjsi.so",

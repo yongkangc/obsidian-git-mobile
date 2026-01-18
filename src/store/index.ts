@@ -1,6 +1,10 @@
 import {create} from 'zustand';
 import * as RNFS from 'react-native-fs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {FileMeta, FileNode, SyncStatus, SyncQueueItem} from '../types';
+
+const RECENT_NOTES_KEY = '@obsidian_git_recent_notes';
+const MAX_RECENT_NOTES = 10;
 
 interface VaultState {
   currentNote: FileMeta | null;
@@ -19,6 +23,8 @@ interface VaultState {
   setCurrentPath: (path: string[]) => void;
   setFileTree: (tree: FileNode[]) => void;
   setRecentNotes: (notes: FileMeta[]) => void;
+  addRecentNote: (note: FileMeta) => void;
+  loadRecentNotes: () => Promise<void>;
   setSyncStatus: (status: SyncStatus) => void;
   addToSyncQueue: (path: string, action: 'add' | 'modify' | 'delete') => void;
   clearSyncQueue: () => void;
@@ -52,6 +58,26 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   setCurrentPath: path => set({currentPath: path}),
   setFileTree: tree => set({fileTree: tree}),
   setRecentNotes: notes => set({recentNotes: notes}),
+  addRecentNote: note => {
+    const current = get().recentNotes;
+    const filtered = current.filter(n => n.path !== note.path);
+    const updated = [note, ...filtered].slice(0, MAX_RECENT_NOTES);
+    set({recentNotes: updated});
+    AsyncStorage.setItem(RECENT_NOTES_KEY, JSON.stringify(updated)).catch(
+      err => console.warn('Failed to persist recent notes:', err),
+    );
+  },
+  loadRecentNotes: async () => {
+    try {
+      const stored = await AsyncStorage.getItem(RECENT_NOTES_KEY);
+      if (stored) {
+        const notes = JSON.parse(stored) as FileMeta[];
+        set({recentNotes: notes});
+      }
+    } catch (err) {
+      console.warn('Failed to load recent notes:', err);
+    }
+  },
   setSyncStatus: status => set({syncStatus: status}),
   addToSyncQueue: (path, action) => {
     const queue = get().syncQueue;

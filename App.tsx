@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {StatusBar, useColorScheme, View} from 'react-native';
+import {InteractionManager, StatusBar, View} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -10,6 +10,8 @@ import {
   SearchScreen,
 } from './src/screens';
 import {indexDB} from './src/services/index-db';
+import {colors} from './src/theme';
+import {useVaultStore} from './src/store';
 
 export type RootStackParamList = {
   Vault: undefined;
@@ -21,28 +23,36 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const loadRecentNotes = useVaultStore(state => state.loadRecentNotes);
 
   useEffect(() => {
-    indexDB.init().catch(console.error);
-  }, []);
+    loadRecentNotes();
+    const handle = InteractionManager.runAfterInteractions(() => {
+      indexDB.init().catch(console.error);
+    });
+    return () => handle.cancel();
+  }, [loadRecentNotes]);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: colors.background}}>
       <SafeAreaProvider>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={colors.background}
+          translucent={false}
+        />
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName="Vault"
             screenOptions={{
-              headerStyle: {backgroundColor: '#1e1e1e'},
-              headerTintColor: '#ffffff',
-              contentStyle: {backgroundColor: '#1e1e1e'},
+              headerStyle: {backgroundColor: colors.background},
+              headerTintColor: colors.textPrimary,
+              contentStyle: {backgroundColor: colors.background},
             }}>
             <Stack.Screen
               name="Vault"
               component={VaultScreen}
-              options={{title: 'Vault'}}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="Editor"

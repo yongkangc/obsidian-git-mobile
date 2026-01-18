@@ -5,8 +5,33 @@ const DB_NAME = 'vault_index.db';
 
 export class SQLiteIndexDB implements IndexDB {
   private db: QuickSQLiteConnection | null = null;
+  private _isReady = false;
+  private _initPromise: Promise<void> | null = null;
+
+  isReady(): boolean {
+    return this._isReady;
+  }
+
+  async waitUntilReady(): Promise<void> {
+    if (this._isReady) {
+      return;
+    }
+    if (this._initPromise) {
+      return this._initPromise;
+    }
+    throw new Error('Database not initialized. Call init() first.');
+  }
 
   async init(): Promise<void> {
+    if (this._initPromise) {
+      return this._initPromise;
+    }
+
+    this._initPromise = this._doInit();
+    return this._initPromise;
+  }
+
+  private async _doInit(): Promise<void> {
     this.db = open({name: DB_NAME});
 
     this.db.execute(`
@@ -38,6 +63,8 @@ export class SQLiteIndexDB implements IndexDB {
         CREATE VIRTUAL TABLE fts USING fts5(path, title, content)
       `);
     }
+
+    this._isReady = true;
   }
 
   private ensureDb(): QuickSQLiteConnection {
@@ -201,6 +228,8 @@ export class SQLiteIndexDB implements IndexDB {
     if (this.db) {
       this.db.close();
       this.db = null;
+      this._isReady = false;
+      this._initPromise = null;
     }
   }
 }

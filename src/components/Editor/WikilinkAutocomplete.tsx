@@ -8,6 +8,7 @@ import {
   Keyboard,
 } from 'react-native';
 import {fuzzyMatch} from '../../utils/markdown';
+import {colors, radius, touchTargets} from '../../theme';
 
 export interface WikilinkAutocompleteProps {
   query: string;
@@ -33,7 +34,7 @@ export function WikilinkAutocomplete({
   const matches = useMemo(() => {
     const titles = getFileTitles();
     if (!query) {
-      return titles.slice(0, maxResults).map((title) => ({title, score: 0}));
+      return titles.slice(0, maxResults).map(title => ({title, score: 0}));
     }
 
     const scored: MatchedFile[] = [];
@@ -44,9 +45,7 @@ export function WikilinkAutocomplete({
       }
     }
 
-    return scored
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxResults);
+    return scored.sort((a, b) => b.score - a.score).slice(0, maxResults);
   }, [query, getFileTitles, maxResults]);
 
   const handleSelect = useCallback(
@@ -62,8 +61,7 @@ export function WikilinkAutocomplete({
       <TouchableOpacity
         style={styles.item}
         onPress={() => handleSelect(item.title)}
-        activeOpacity={0.7}
-      >
+        activeOpacity={0.7}>
         <Text style={styles.itemText} numberOfLines={1}>
           {item.title}
         </Text>
@@ -94,32 +92,36 @@ export function WikilinkAutocomplete({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 50,
-    left: 16,
-    right: 16,
+    top: 60,
+    left: 24,
+    right: 24,
     maxHeight: 240,
-    backgroundColor: '#2d2d2d',
-    borderRadius: 8,
+    backgroundColor: colors.backgroundModal,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#444',
+    borderColor: colors.border,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
     zIndex: 100,
+    overflow: 'hidden',
   },
   list: {
     maxHeight: 240,
   },
   item: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3d3d3d',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    minHeight: touchTargets.comfortable,
+    justifyContent: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   itemText: {
-    color: '#ffffff',
-    fontSize: 14,
+    color: colors.accent,
+    fontSize: 16,
+    fontWeight: '500',
   },
 });

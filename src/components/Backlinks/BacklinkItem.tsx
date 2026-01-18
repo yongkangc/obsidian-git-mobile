@@ -1,5 +1,6 @@
 import React, {useMemo, useRef, useCallback} from 'react';
 import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
+import {colors, touchTargets} from '../../theme';
 
 interface BacklinkItemProps {
   title: string;
@@ -102,8 +103,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 12,
     paddingHorizontal: 16,
+    minHeight: touchTargets.comfortable,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
+    borderBottomColor: colors.border,
   },
   icon: {
     fontSize: 18,
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: '#e0e0e0',
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -126,12 +128,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   contextText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 13,
     lineHeight: 18,
   },
   contextLink: {
-    color: '#7c3aed',
+    color: colors.accent,
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '500',

@@ -1,5 +1,6 @@
 import React, {useMemo, useRef, useCallback} from 'react';
 import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
+import {colors, touchTargets} from '../../theme';
 
 interface SearchResultItemProps {
   title: string;
@@ -113,8 +114,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 12,
     paddingHorizontal: 16,
+    minHeight: touchTargets.comfortable,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
+    borderBottomColor: colors.border,
   },
   icon: {
     fontSize: 18,
@@ -125,12 +127,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: '#e0e0e0',
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '500',
   },
   path: {
-    color: '#666',
+    color: colors.textPlaceholder,
     fontSize: 12,
     marginTop: 2,
   },
@@ -138,12 +140,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   snippetText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 13,
     lineHeight: 18,
   },
   snippetHighlight: {
-    color: '#7c3aed',
+    color: colors.accent,
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '600',

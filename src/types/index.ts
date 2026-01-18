@@ -26,6 +26,9 @@ export interface FileStat {
 
 // IndexDB interface
 export interface IndexDB {
+  init(): Promise<void>;
+  isReady(): boolean;
+  waitUntilReady(): Promise<void>;
   upsertFileMeta(file: FileMeta): Promise<void>;
   getFileMeta(path: string): Promise<FileMeta | null>;
   getAllFiles(): Promise<FileMeta[]>;
@@ -34,6 +37,7 @@ export interface IndexDB {
   ftsUpsert(path: string, title: string, content: string): Promise<void>;
   ftsSearch(query: string): Promise<SearchResult[]>;
   deleteFileMeta(path: string): Promise<void>;
+  close(): Promise<void>;
 }
 
 export interface FileMeta {

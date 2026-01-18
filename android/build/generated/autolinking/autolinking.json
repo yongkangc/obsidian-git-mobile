@@ -80,6 +80,31 @@
         }
       }
     },
+    "react-native-haptic-feedback": {
+      "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback",
+      "name": "react-native-haptic-feedback",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/RNReactNativeHapticFeedback.podspec",
+          "version": "2.3.3",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android",
+          "packageImportPath": "import com.mkuczera.RNReactNativeHapticFeedbackPackage;",
+          "packageInstance": "new RNReactNativeHapticFeedbackPackage()",
+          "buildTypes": [],
+          "libraryName": "RNHapticFeedbackSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-keychain": {
       "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-keychain",
       "name": "react-native-keychain",
@@ -190,6 +215,61 @@
             "RNSSafeAreaViewComponentDescriptor"
           ],
           "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-svg": {
+      "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg",
+      "name": "react-native-svg",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/RNSVG.podspec",
+          "version": "15.15.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android",
+          "packageImportPath": "import com.horcrux.svg.SvgPackage;",
+          "packageInstance": "new SvgPackage()",
+          "buildTypes": [],
+          "libraryName": "rnsvg",
+          "componentDescriptors": [
+            "RNSVGCircleComponentDescriptor",
+            "RNSVGClipPathComponentDescriptor",
+            "RNSVGDefsComponentDescriptor",
+            "RNSVGFeBlendComponentDescriptor",
+            "RNSVGFeColorMatrixComponentDescriptor",
+            "RNSVGFeCompositeComponentDescriptor",
+            "RNSVGFeFloodComponentDescriptor",
+            "RNSVGFeGaussianBlurComponentDescriptor",
+            "RNSVGFeMergeComponentDescriptor",
+            "RNSVGFeOffsetComponentDescriptor",
+            "RNSVGFilterComponentDescriptor",
+            "RNSVGEllipseComponentDescriptor",
+            "RNSVGForeignObjectComponentDescriptor",
+            "RNSVGGroupComponentDescriptor",
+            "RNSVGImageComponentDescriptor",
+            "RNSVGLinearGradientComponentDescriptor",
+            "RNSVGLineComponentDescriptor",
+            "RNSVGMarkerComponentDescriptor",
+            "RNSVGMaskComponentDescriptor",
+            "RNSVGPathComponentDescriptor",
+            "RNSVGPatternComponentDescriptor",
+            "RNSVGRadialGradientComponentDescriptor",
+            "RNSVGRectComponentDescriptor",
+            "RNSVGSvgViewAndroidComponentDescriptor",
+            "RNSVGSymbolComponentDescriptor",
+            "RNSVGTextComponentDescriptor",
+            "RNSVGTextPathComponentDescriptor",
+            "RNSVGTSpanComponentDescriptor",
+            "RNSVGUseComponentDescriptor"
+          ],
+          "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,

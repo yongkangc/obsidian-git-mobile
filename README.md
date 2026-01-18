@@ -3,9 +3,9 @@
 A React Native mobile app for syncing Obsidian vaults via Git. Inspired by Obsidian's clean, minimal design.
 
 <p align="center">
-  <img src="docs/screenshots/01-vault-home.png" width="200" alt="Vault Home" />
-  <img src="docs/screenshots/02-folder-expanded.png" width="200" alt="Folder Expanded" />
-  <img src="docs/screenshots/05-editor-view.png" width="200" alt="Editor" />
+  <img src="docs/screenshots/final-file-browser.png" width="200" alt="Vault Home" />
+  <img src="docs/screenshots/final-editor.png" width="200" alt="Editor" />
+  <img src="docs/screenshots/final-settings.png" width="200" alt="Settings" />
 </p>
 
 ## Features

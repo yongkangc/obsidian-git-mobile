@@ -7,6 +7,9 @@
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rngesturehandler_codegen_autolinked_build/CMakeFiles/react_codegen_rngesturehandler_codegen.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rngesturehandler_codegen_autolinked_build/CMakeFiles/edit_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rngesturehandler_codegen_autolinked_build/CMakeFiles/rebuild_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/RNHapticFeedbackSpec_autolinked_build/CMakeFiles/react_codegen_RNHapticFeedbackSpec.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/RNHapticFeedbackSpec_autolinked_build/CMakeFiles/edit_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/RNHapticFeedbackSpec_autolinked_build/CMakeFiles/rebuild_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/RNKeychainSpec_autolinked_build/CMakeFiles/react_codegen_RNKeychainSpec.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/RNKeychainSpec_autolinked_build/CMakeFiles/edit_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/RNKeychainSpec_autolinked_build/CMakeFiles/rebuild_cache.dir
@@ -19,6 +22,9 @@
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnscreens_autolinked_build/CMakeFiles/react_codegen_rnscreens.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnscreens_autolinked_build/CMakeFiles/edit_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnscreens_autolinked_build/CMakeFiles/rebuild_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnsvg_autolinked_build/CMakeFiles/react_codegen_rnsvg.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnsvg_autolinked_build/CMakeFiles/edit_cache.dir
+/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnsvg_autolinked_build/CMakeFiles/rebuild_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnworklets_autolinked_build/CMakeFiles/react_codegen_rnworklets.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnworklets_autolinked_build/CMakeFiles/edit_cache.dir
 /home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86_64/rnworklets_autolinked_build/CMakeFiles/rebuild_cache.dir

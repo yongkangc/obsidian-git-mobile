@@ -1,5 +1,6 @@
 import React, {useState, useCallback} from 'react';
 import {View, Image, StyleSheet, ActivityIndicator, Text} from 'react-native';
+import {colors, radius} from '../../theme';
 
 export interface ImageEmbedProps {
   vaultPath: string;
@@ -90,13 +91,13 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 100,
     height: 100,
-    backgroundColor: '#2d2d2d',
-    borderRadius: 4,
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radius.sm,
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    borderRadius: 4,
+    borderRadius: radius.sm,
   },
   hidden: {
     position: 'absolute',
@@ -104,12 +105,12 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     padding: 12,
-    backgroundColor: '#3d2020',
-    borderRadius: 4,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderRadius: radius.sm,
     marginVertical: 8,
   },
   errorText: {
-    color: '#ff8888',
+    color: colors.error,
     fontSize: 12,
   },
 });

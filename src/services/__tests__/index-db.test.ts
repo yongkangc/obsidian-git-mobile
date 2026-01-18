@@ -4,6 +4,19 @@ class MockSQLiteIndexDB implements IndexDB {
   private files: Map<string, FileMeta> = new Map();
   private links: Map<string, Set<string>> = new Map();
   private ftsIndex: Map<string, {title: string; content: string}> = new Map();
+  private _isReady = false;
+
+  async init(): Promise<void> {
+    this._isReady = true;
+  }
+
+  isReady(): boolean {
+    return this._isReady;
+  }
+
+  async waitUntilReady(): Promise<void> {
+    return;
+  }
 
   async upsertFileMeta(file: FileMeta): Promise<void> {
     this.files.set(file.path, file);
@@ -66,6 +79,10 @@ class MockSQLiteIndexDB implements IndexDB {
     this.files.delete(path);
     this.links.delete(path);
     this.ftsIndex.delete(path);
+  }
+
+  async close(): Promise<void> {
+    this._isReady = false;
   }
 
   clear(): void {

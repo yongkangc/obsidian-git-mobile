@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {useVaultStore} from '../../store';
 import type {FileMeta} from '../../types';
+import {colors, radius} from '../../theme';
 
 interface RecentNotesProps {
   onNoteSelect: (path: string) => void;
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   sectionTitle: {
-    color: '#888888',
+    color: colors.textPlaceholder,
     fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -123,23 +124,23 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   card: {
-    backgroundColor: '#262626',
-    borderRadius: 10,
+    backgroundColor: colors.backgroundCard,
+    borderRadius: radius.md,
     padding: 12,
     width: 120,
     height: 80,
     justifyContent: 'space-between',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#333333',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cardTitle: {
-    color: '#dcddde',
+    color: colors.textSecondary,
     fontSize: 13,
     fontWeight: '500',
     lineHeight: 17,
   },
   cardTime: {
-    color: '#666666',
+    color: colors.textPlaceholder,
     fontSize: 11,
   },
 });

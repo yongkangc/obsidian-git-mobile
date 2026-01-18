@@ -12,6 +12,7 @@ import {FlashList} from '@shopify/flash-list';
 import {SearchResultItem} from './SearchResultItem';
 import type {SearchResult} from '../../types';
 import type {SearchMode} from '../../hooks/useSearch';
+import {colors, radius, touchTargets} from '../../theme';
 
 interface SearchPanelProps {
   query: string;
@@ -122,7 +123,7 @@ export function SearchPanel({
         {isLoading && (
           <ActivityIndicator
             size="small"
-            color="#7c3aed"
+            color={colors.accent}
             style={styles.loader}
           />
         )}
@@ -170,7 +171,7 @@ export function SearchPanel({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1e1e1e',
+    backgroundColor: colors.backgroundElevated,
   },
   tabBar: {
     flexDirection: 'row',
@@ -182,28 +183,31 @@ const styles = StyleSheet.create({
   tab: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: '#2a2a2a',
+    borderRadius: radius.pill,
+    backgroundColor: colors.border,
+    minHeight: touchTargets.minimum,
+    justifyContent: 'center',
   },
   tabActive: {
-    backgroundColor: '#7c3aed',
+    backgroundColor: colors.accent,
   },
   tabText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 14,
     fontWeight: '500',
   },
   tabTextActive: {
-    color: '#ffffff',
+    color: colors.textPrimary,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
+    backgroundColor: colors.border,
+    borderRadius: radius.lg,
     marginHorizontal: 16,
     marginBottom: 12,
     paddingHorizontal: 14,
+    minHeight: touchTargets.comfortable,
   },
   searchIcon: {
     fontSize: 16,
@@ -211,18 +215,21 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 48,
-    color: '#fff',
+    height: touchTargets.comfortable,
+    color: colors.textPrimary,
     fontSize: 16,
   },
   loader: {
     marginRight: 8,
   },
   clearButton: {
-    padding: 6,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   clearButtonText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 14,
   },
   resultsContainer: {
@@ -241,12 +248,12 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   emptyText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 16,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#666',
+    color: colors.textPlaceholder,
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',

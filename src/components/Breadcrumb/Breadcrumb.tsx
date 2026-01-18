@@ -1,6 +1,7 @@
 import React, {useCallback, useRef} from 'react';
 import {View, StyleSheet, Text, Pressable, ScrollView, Animated} from 'react-native';
 import {useVaultStore} from '../../store';
+import {colors, touchTargets} from '../../theme';
 
 interface BreadcrumbProps {
   onNavigate: (pathSegments: string[]) => void;
@@ -91,15 +92,15 @@ export function Breadcrumb({onNavigate}: BreadcrumbProps): React.JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1e1e1e',
+    backgroundColor: colors.backgroundElevated,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
+    borderBottomColor: colors.border,
   },
   scrollContent: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    minHeight: touchTargets.minimum,
     gap: 4,
   },
   itemContainer: {
@@ -108,15 +109,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   itemText: {
-    color: '#888',
+    color: colors.textPlaceholder,
     fontSize: 13,
   },
   itemTextActive: {
-    color: '#e0e0e0',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   separator: {
-    color: '#555',
+    color: colors.textDisabled,
     fontSize: 14,
     marginHorizontal: 2,
   },

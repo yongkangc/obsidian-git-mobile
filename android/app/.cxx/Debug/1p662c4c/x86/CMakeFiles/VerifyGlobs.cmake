@@ -60,6 +60,30 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86/CMakeFiles/cmake.verify_globs")
 endif()
 
+# react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/RNHapticFeedbackSpec-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/react/renderer/components/RNHapticFeedbackSpec/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/react/renderer/components/RNHapticFeedbackSpec/ComponentDescriptors.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/react/renderer/components/RNHapticFeedbackSpec/EventEmitters.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/react/renderer/components/RNHapticFeedbackSpec/Props.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/react/renderer/components/RNHapticFeedbackSpec/ShadowNodes.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-haptic-feedback/android/build/generated/source/codegen/jni/react/renderer/components/RNHapticFeedbackSpec/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
 # react_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-keychain/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-keychain/android/build/generated/source/codegen/jni/*.cpp")
 set(OLD_GLOB
@@ -203,6 +227,43 @@ set(OLD_GLOB
   "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/Props.cpp"
   "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/ShadowNodes.cpp"
   "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
+# rnsvg_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:10 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/rnsvg.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
+# rnsvg_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:10 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/*.cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGImageShadowNode.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGImageState.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGLayoutableShadowNode.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGShadowNodes.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/yk/oss/obsidian-git-mobile/android/app/.cxx/Debug/1p662c4c/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
+# rnsvg_codegen_SRCS at /home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:11 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/*cpp")
+set(OLD_GLOB
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/ComponentDescriptors.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/EventEmitters.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/Props.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/ShadowNodes.cpp"
+  "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/States.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
