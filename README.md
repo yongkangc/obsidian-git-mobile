@@ -5,7 +5,7 @@ A React Native app for syncing Obsidian vaults via Git.
 <p align="center">
   <img src="docs/screenshots/ui-improvements-final.png" width="220" alt="Vault" />
   <img src="docs/screenshots/final-03-editor.png" width="220" alt="Editor" />
-  <img src="docs/screenshots/final-settings.png" width="220" alt="Settings" />
+  <img src="docs/screenshots/v2-settings.png" width="220" alt="Settings" />
 </p>
 
 ## Features
