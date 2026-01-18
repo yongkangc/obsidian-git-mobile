@@ -91,5 +91,18 @@ export function createMockVaultFS(
     async exists(path: string): Promise<boolean> {
       return files.has(path);
     },
+
+    async renameFile(oldPath: string, newPath: string): Promise<void> {
+      const file = files.get(oldPath);
+      if (!file) {
+        throw new Error(`File not found: ${oldPath}`);
+      }
+      files.delete(oldPath);
+      files.set(newPath, file);
+    },
+
+    async createFolder(_path: string): Promise<void> {
+      // No-op for mock - folders are implicit
+    },
   };
 }

@@ -38,24 +38,19 @@ jest.mock('isomorphic-git', () => ({
 
 jest.mock('isomorphic-git/http/web', () => ({}));
 
-const mockFsPromises = {
-  mkdir: jest.fn().mockResolvedValue(undefined),
-  stat: jest.fn().mockRejectedValue(new Error('Not found')),
-  readFile: jest.fn().mockResolvedValue(''),
-  writeFile: jest.fn().mockResolvedValue(undefined),
-  readdir: jest.fn().mockResolvedValue([]),
-  rmdir: jest.fn().mockResolvedValue(undefined),
-  unlink: jest.fn().mockResolvedValue(undefined),
-};
-
-jest.mock('@isomorphic-git/lightning-fs', () => {
-  return {
-    __esModule: true,
-    default: class MockLightningFS {
-      promises = mockFsPromises;
+jest.mock('../rnfs-adapter', () => ({
+  rnfsAdapter: {
+    promises: {
+      mkdir: jest.fn().mockResolvedValue(undefined),
+      stat: jest.fn().mockRejectedValue(new Error('Not found')),
+      readFile: jest.fn().mockResolvedValue(''),
+      writeFile: jest.fn().mockResolvedValue(undefined),
+      readdir: jest.fn().mockResolvedValue([]),
+      rmdir: jest.fn().mockResolvedValue(undefined),
+      unlink: jest.fn().mockResolvedValue(undefined),
     },
-  };
-});
+  },
+}));
 
 import * as auth from '../auth';
 import {GitSyncService} from '../git-sync';

@@ -20,6 +20,8 @@ describe('Type Interface Compliance', () => {
         readFile: jest.fn(),
         writeFile: jest.fn(),
         deleteFile: jest.fn(),
+        renameFile: jest.fn(),
+        createFolder: jest.fn(),
         listTree: jest.fn(),
         stat: jest.fn(),
         ensureDir: jest.fn(),
@@ -29,6 +31,8 @@ describe('Type Interface Compliance', () => {
       expect(mockVaultFS.readFile).toBeDefined();
       expect(mockVaultFS.writeFile).toBeDefined();
       expect(mockVaultFS.deleteFile).toBeDefined();
+      expect(mockVaultFS.renameFile).toBeDefined();
+      expect(mockVaultFS.createFolder).toBeDefined();
       expect(mockVaultFS.listTree).toBeDefined();
       expect(mockVaultFS.stat).toBeDefined();
       expect(mockVaultFS.ensureDir).toBeDefined();

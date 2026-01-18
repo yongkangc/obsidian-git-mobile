@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -12,6 +12,16 @@ import {
 import {getToken, storeToken, clearToken} from '../services/auth';
 import type {GitAuth} from '../types';
 import {colors, radius, touchTargets} from '../theme';
+import {useVaultStore} from '../store';
+
+const SYNC_INTERVAL_OPTIONS = [
+  {label: 'Off', value: 0},
+  {label: '1 min', value: 1},
+  {label: '5 min', value: 5},
+  {label: '15 min', value: 15},
+  {label: '30 min', value: 30},
+  {label: '1 hour', value: 60},
+];
 
 export function SettingsScreen(): React.JSX.Element {
   const [token, setToken] = useState('');
@@ -21,6 +31,8 @@ export function SettingsScreen(): React.JSX.Element {
   const [isSaving, setIsSaving] = useState(false);
   const [hasCredentials, setHasCredentials] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const syncInterval = useVaultStore(state => state.syncInterval);
+  const setSyncInterval = useVaultStore(state => state.setSyncInterval);
 
   useEffect(() => {
     loadCredentials();
@@ -158,8 +170,12 @@ export function SettingsScreen(): React.JSX.Element {
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[styles.button, styles.primaryButton]}
+          <Pressable
+            style={({pressed}) => [
+              styles.button,
+              styles.primaryButton,
+              pressed && styles.primaryButtonPressed,
+            ]}
             onPress={handleSave}
             disabled={isSaving}>
             {isSaving ? (
@@ -167,15 +183,48 @@ export function SettingsScreen(): React.JSX.Element {
             ) : (
               <Text style={styles.buttonText}>Save Credentials</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           {hasCredentials && (
-            <TouchableOpacity
-              style={[styles.button, styles.dangerButton]}
+            <Pressable
+              style={({pressed}) => [
+                styles.button,
+                styles.dangerButton,
+                pressed && styles.dangerButtonPressed,
+              ]}
               onPress={handleClear}>
               <Text style={styles.dangerButtonText}>Clear</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Auto Sync</Text>
+        <Text style={styles.sectionDescription}>
+          Automatically sync your vault at regular intervals.
+        </Text>
+
+        <View style={styles.intervalRow}>
+          {SYNC_INTERVAL_OPTIONS.map(option => (
+            <Pressable
+              key={option.value}
+              style={({pressed}) => [
+                styles.intervalButton,
+                syncInterval === option.value && styles.intervalButtonActive,
+                pressed && styles.intervalButtonPressed,
+              ]}
+              onPress={() => setSyncInterval(option.value)}>
+              <Text
+                style={[
+                  styles.intervalButtonText,
+                  syncInterval === option.value &&
+                    styles.intervalButtonTextActive,
+                ]}>
+                {option.label}
+              </Text>
+            </Pressable>
+          ))}
         </View>
       </View>
 
@@ -263,10 +312,16 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  primaryButtonPressed: {
+    opacity: 0.8,
+  },
   dangerButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: colors.danger,
+  },
+  dangerButtonPressed: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
   },
   buttonText: {
     color: colors.textPrimary,
@@ -282,5 +337,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textPlaceholder,
     marginBottom: 4,
+  },
+  intervalRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  intervalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.backgroundElevated,
+  },
+  intervalButtonActive: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accent,
+  },
+  intervalButtonPressed: {
+    opacity: 0.7,
+  },
+  intervalButtonText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  intervalButtonTextActive: {
+    color: colors.textPrimary,
   },
 });

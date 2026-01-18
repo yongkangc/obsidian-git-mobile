@@ -3,12 +3,13 @@ import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   Keyboard,
 } from 'react-native';
 import {fuzzyMatch} from '../../utils/markdown';
 import {colors, radius, touchTargets} from '../../theme';
+import {haptics} from '../../utils/haptics';
 
 export interface WikilinkAutocompleteProps {
   query: string;
@@ -50,6 +51,7 @@ export function WikilinkAutocomplete({
 
   const handleSelect = useCallback(
     (title: string) => {
+      haptics.impactLight();
       Keyboard.dismiss();
       onSelect(title);
     },
@@ -58,14 +60,13 @@ export function WikilinkAutocomplete({
 
   const renderItem = useCallback(
     ({item}: {item: MatchedFile}) => (
-      <TouchableOpacity
-        style={styles.item}
-        onPress={() => handleSelect(item.title)}
-        activeOpacity={0.7}>
+      <Pressable
+        style={({pressed}) => [styles.item, pressed && styles.itemPressed]}
+        onPress={() => handleSelect(item.title)}>
         <Text style={styles.itemText} numberOfLines={1}>
           {item.title}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     ),
     [handleSelect],
   );
@@ -118,6 +119,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
+  },
+  itemPressed: {
+    backgroundColor: colors.backgroundElevated,
   },
   itemText: {
     color: colors.accent,

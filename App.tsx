@@ -12,6 +12,7 @@ import {
 import {indexDB} from './src/services/index-db';
 import {colors} from './src/theme';
 import {useVaultStore} from './src/store';
+import {useAutoSync} from './src/hooks';
 
 export type RootStackParamList = {
   Vault: undefined;
@@ -24,14 +25,18 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App(): React.JSX.Element {
   const loadRecentNotes = useVaultStore(state => state.loadRecentNotes);
+  const loadSyncInterval = useVaultStore(state => state.loadSyncInterval);
+
+  useAutoSync();
 
   useEffect(() => {
     loadRecentNotes();
+    loadSyncInterval();
     const handle = InteractionManager.runAfterInteractions(() => {
       indexDB.init().catch(console.error);
     });
     return () => handle.cancel();
-  }, [loadRecentNotes]);
+  }, [loadRecentNotes, loadSyncInterval]);
 
   return (
     <View style={{flex: 1, backgroundColor: colors.background}}>

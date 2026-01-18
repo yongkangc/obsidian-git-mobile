@@ -14,6 +14,7 @@ import fuzzysort from 'fuzzysort';
 import {useVaultStore} from '../../store';
 import type {FileNode} from '../../types';
 import {colors, radius, touchTargets} from '../../theme';
+import {haptics} from '../../utils/haptics';
 
 interface SearchResult {
   item: FileNode;
@@ -197,7 +198,10 @@ export function QuickSwitcher({
       return (
         <Pressable
           style={[styles.resultItem, isSelected && styles.resultItemSelected]}
-          onPress={() => handleSelect(item.item.path)}>
+          onPress={() => {
+            haptics.impactLight();
+            handleSelect(item.item.path);
+          }}>
           <View style={styles.resultTextContainer}>
             {item.highlighted}
             <Text style={styles.resultPath} numberOfLines={1}>

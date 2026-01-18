@@ -10,6 +10,7 @@ import {
 import {useVaultStore} from '../../store';
 import type {FileMeta} from '../../types';
 import {colors, radius} from '../../theme';
+import {haptics} from '../../utils/haptics';
 
 interface RecentNotesProps {
   onNoteSelect: (path: string) => void;
@@ -46,6 +47,7 @@ const RecentNoteCard = React.memo(function RecentNoteCard({
   const opacity = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
+    haptics.impactLight();
     Animated.timing(opacity, {
       toValue: 0.7,
       duration: 50,
@@ -71,7 +73,10 @@ const RecentNoteCard = React.memo(function RecentNoteCard({
         style={styles.card}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onPress={handlePress}>
+        onPress={handlePress}
+        accessibilityLabel={`${note.title}, edited ${formatRelativeTime(note.modifiedAt)}`}
+        accessibilityHint="Double tap to open note"
+        accessibilityRole="button">
         <Text style={styles.cardTitle} numberOfLines={2}>
           {note.title}
         </Text>

@@ -35,17 +35,29 @@ export function MarkdownEditor({
   placeholder = '',
 }: MarkdownEditorProps): React.JSX.Element {
   const [text, setText] = useState(initialContent);
+  const [overlayText, setOverlayText] = useState(initialContent);
   const [selection, setSelection] = useState<Selection>({start: 0, end: 0});
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteQuery, setAutocompleteQuery] = useState('');
   const [autocompletePosition, setAutocompletePosition] = useState(0);
   const inputRef = useRef<TextInput>(null);
   const lastSavedRef = useRef(initialContent);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setText(initialContent);
+    setOverlayText(initialContent);
     lastSavedRef.current = initialContent;
   }, [initialContent]);
+
+  // Cleanup overlay timer on unmount
+  useEffect(() => {
+    return () => {
+      if (overlayTimerRef.current) {
+        clearTimeout(overlayTimerRef.current);
+      }
+    };
+  }, []);
 
   const debouncedSave = useDebounce((content: string) => {
     if (content !== lastSavedRef.current) {
@@ -58,6 +70,14 @@ export function MarkdownEditor({
     (newText: string) => {
       setText(newText);
       debouncedSave(newText);
+
+      // Throttle overlay updates to reduce parseMarkdownSegments calls (every 100ms)
+      if (overlayTimerRef.current) {
+        clearTimeout(overlayTimerRef.current);
+      }
+      overlayTimerRef.current = setTimeout(() => {
+        setOverlayText(newText);
+      }, 100);
 
       const cursorPos = selection.start;
       const textBeforeCursor = newText.slice(0, cursorPos + 1);
@@ -190,7 +210,7 @@ export function MarkdownEditor({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}>
       <View style={styles.editorContainer}>
-        <StyledMarkdownOverlay text={text} style={styles.overlay} />
+        <StyledMarkdownOverlay text={overlayText} style={styles.overlay} />
         <TextInput
           ref={inputRef}
           style={styles.input}

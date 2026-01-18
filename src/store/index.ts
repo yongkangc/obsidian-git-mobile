@@ -2,9 +2,12 @@ import {create} from 'zustand';
 import * as RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {FileMeta, FileNode, SyncStatus, SyncQueueItem} from '../types';
+import {vaultFS} from '../services/vault-fs';
 
 const RECENT_NOTES_KEY = '@obsidian_git_recent_notes';
 const MAX_RECENT_NOTES = 10;
+
+const SYNC_INTERVAL_KEY = '@obsidian_git_sync_interval';
 
 interface VaultState {
   currentNote: FileMeta | null;
@@ -18,6 +21,7 @@ interface VaultState {
   expandedFolders: Set<string>;
   quickSwitcherVisible: boolean;
   vaultName: string;
+  syncInterval: number; // in minutes, 0 = disabled
 
   setCurrentNote: (note: FileMeta | null) => void;
   setCurrentPath: (path: string[]) => void;
@@ -35,6 +39,9 @@ interface VaultState {
   collapseFolder: (path: string) => void;
   setQuickSwitcherVisible: (visible: boolean) => void;
   setVaultName: (name: string) => void;
+  setSyncInterval: (interval: number) => void;
+  loadSyncInterval: () => Promise<void>;
+  refreshTree: () => Promise<void>;
 }
 
 export const useVaultStore = create<VaultState>((set, get) => ({
@@ -53,6 +60,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   expandedFolders: new Set<string>(),
   quickSwitcherVisible: false,
   vaultName: 'Vault',
+  syncInterval: 0,
 
   setCurrentNote: note => set({currentNote: note}),
   setCurrentPath: path => set({currentPath: path}),
@@ -123,4 +131,31 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
   setQuickSwitcherVisible: visible => set({quickSwitcherVisible: visible}),
   setVaultName: name => set({vaultName: name}),
+  setSyncInterval: interval => {
+    set({syncInterval: interval});
+    AsyncStorage.setItem(SYNC_INTERVAL_KEY, String(interval)).catch(err =>
+      console.warn('Failed to persist sync interval:', err),
+    );
+  },
+  loadSyncInterval: async () => {
+    try {
+      const stored = await AsyncStorage.getItem(SYNC_INTERVAL_KEY);
+      if (stored) {
+        const interval = parseInt(stored, 10);
+        if (!isNaN(interval)) {
+          set({syncInterval: interval});
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load sync interval:', err);
+    }
+  },
+  refreshTree: async () => {
+    try {
+      const tree = await vaultFS.listTree();
+      set({fileTree: tree});
+    } catch (err) {
+      console.warn('Failed to refresh tree:', err);
+    }
+  },
 }));

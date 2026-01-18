@@ -3,6 +3,8 @@ export interface VaultFS {
   readFile(path: string): Promise<string>;
   writeFile(path: string, content: string): Promise<void>;
   deleteFile(path: string): Promise<void>;
+  renameFile(oldPath: string, newPath: string): Promise<void>;
+  createFolder(path: string): Promise<void>;
   listTree(dir?: string): Promise<FileNode[]>;
   stat(path: string): Promise<FileStat>;
   ensureDir(path: string): Promise<void>;

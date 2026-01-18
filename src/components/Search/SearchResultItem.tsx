@@ -1,6 +1,7 @@
 import React, {useMemo, useRef, useCallback} from 'react';
 import {View, Text, StyleSheet, Pressable, Animated} from 'react-native';
 import {colors, touchTargets} from '../../theme';
+import {haptics} from '../../utils/haptics';
 
 interface SearchResultItemProps {
   title: string;
@@ -62,6 +63,7 @@ export function SearchResultItem({
   const scale = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
+    haptics.impactLight();
     Animated.spring(scale, {
       toValue: 0.98,
       damping: 15,
@@ -92,7 +94,10 @@ export function SearchResultItem({
         style={styles.container}
         onPress={onPress}
         onPressIn={handlePressIn}
-        onPressOut={handlePressOut}>
+        onPressOut={handlePressOut}
+        accessibilityLabel={`${title}, in ${folderPath}`}
+        accessibilityHint="Double tap to open note"
+        accessibilityRole="button">
         <Text style={styles.icon}>{icon}</Text>
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={1}>

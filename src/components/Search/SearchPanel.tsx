@@ -113,12 +113,13 @@ export function SearchPanel({
           placeholder={
             mode === 'filename' ? 'Search by filename...' : 'Search content...'
           }
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.textPlaceholder}
           value={query}
           onChangeText={onQueryChange}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
+          accessibilityLabel={mode === 'filename' ? 'Search by filename' : 'Search content'}
         />
         {isLoading && (
           <ActivityIndicator
@@ -129,7 +130,11 @@ export function SearchPanel({
         )}
         {showClearButton && (
           <Animated.View style={{opacity: clearButtonOpacity}}>
-            <Pressable onPress={handleClear} style={styles.clearButton}>
+            <Pressable
+              onPress={handleClear}
+              style={styles.clearButton}
+              accessibilityLabel="Clear search"
+              accessibilityRole="button">
               <Text style={styles.clearButtonText}>✕</Text>
             </Pressable>
           </Animated.View>

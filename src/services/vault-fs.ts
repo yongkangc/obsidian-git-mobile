@@ -82,6 +82,19 @@ class VaultFSImpl implements VaultFS {
     this.invalidateCache();
   }
 
+  async renameFile(oldPath: string, newPath: string): Promise<void> {
+    const absOldPath = this.toAbsolutePath(oldPath);
+    const absNewPath = this.toAbsolutePath(newPath);
+    await RNFS.moveFile(absOldPath, absNewPath);
+    this.invalidateCache();
+  }
+
+  async createFolder(path: string): Promise<void> {
+    const absPath = this.toAbsolutePath(path);
+    await RNFS.mkdir(absPath);
+    this.invalidateCache();
+  }
+
   async listTree(dir?: string): Promise<FileNode[]> {
     const startDir = dir ? this.toAbsolutePath(dir) : this.getVaultPath();
     const cacheKey = startDir;

@@ -91,7 +91,10 @@ export const FileTreeItem = React.memo(function FileTreeItem({
         onPressOut={handlePressOut}
         onPress={handlePress}
         onLongPress={handleLongPress}
-        delayLongPress={400}>
+        delayLongPress={400}
+        accessibilityLabel={node.isDirectory ? `${displayName} folder` : `${displayName} note`}
+        accessibilityHint={node.isDirectory ? 'Double tap to open folder' : 'Double tap to open note'}
+        accessibilityRole={node.isDirectory ? 'button' : 'button'}>
       {node.isDirectory ? (
         <>
           <Text style={styles.chevron}>{isExpanded ? '▿' : '▹'}</Text>

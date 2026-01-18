@@ -9,6 +9,7 @@ import {useVaultStore} from '../store';
 import type {FileMeta, SearchResult} from '../types';
 import type {FileNode} from '../types';
 import {colors} from '../theme';
+import {indexDB} from '../services/index-db';
 
 type SearchScreenProps = NativeStackScreenProps<RootStackParamList, 'Search'>;
 
@@ -52,12 +53,19 @@ export function SearchScreen({navigation}: SearchScreenProps): React.JSX.Element
 
   const handleFulltextSearch = useCallback(
     async (query: string): Promise<SearchResult[]> => {
-      // TODO: Connect to IndexDB.ftsSearch when implemented
-      // For now, return mock results demonstrating the UI
       if (!query.trim()) return [];
 
+      try {
+        if (indexDB.isReady()) {
+          return await indexDB.ftsSearch(query);
+        }
+      } catch (error) {
+        console.warn('FTS search failed, falling back to title filter:', error);
+      }
+
+      // Fallback to title-based filtering if indexDB not ready
       const allFiles = getAllMarkdownFiles(fileTree);
-      const mockResults: SearchResult[] = allFiles
+      return allFiles
         .filter(file =>
           file.title.toLowerCase().includes(query.toLowerCase()),
         )
@@ -65,11 +73,9 @@ export function SearchScreen({navigation}: SearchScreenProps): React.JSX.Element
         .map(file => ({
           path: file.path,
           title: file.title,
-          snippet: `...content containing **${query}** in the note...`,
+          snippet: `...matches "${query}"...`,
           score: 1,
         }));
-
-      return mockResults;
     },
     [fileTree],
   );

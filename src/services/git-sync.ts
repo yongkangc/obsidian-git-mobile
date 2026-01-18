@@ -1,21 +1,23 @@
 import git from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
-import LightningFS from '@isomorphic-git/lightning-fs';
+import * as RNFS from 'react-native-fs';
 import type {GitSync, GitAuth, PullResult, SyncStatus} from '../types';
 import {getQueue, clearQueue} from './sync-queue';
 import {getToken} from './auth';
+import {rnfsAdapter} from './rnfs-adapter';
 
-const VAULT_DIR = '/vault';
-const CONFLICTS_LOG = '/vault/conflicts.log';
+// Use actual device filesystem path
+const VAULT_DIR = `${RNFS.DocumentDirectoryPath}/vault`;
+const CONFLICTS_LOG = `${RNFS.DocumentDirectoryPath}/vault/conflicts.log`;
 
 export class GitSyncService implements GitSync {
-  private fs: LightningFS;
-  private pfs: LightningFS['promises'];
+  private fs: typeof rnfsAdapter;
+  private pfs: typeof rnfsAdapter.promises;
   private auth: GitAuth | null = null;
 
   constructor() {
-    this.fs = new LightningFS('vault-fs');
-    this.pfs = this.fs.promises;
+    this.fs = rnfsAdapter;
+    this.pfs = rnfsAdapter.promises;
   }
 
   setAuth(auth: GitAuth): void {

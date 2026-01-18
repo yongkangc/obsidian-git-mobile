@@ -1,72 +1,47 @@
 # Obsidian Git Mobile
 
-A React Native mobile app for syncing Obsidian vaults via Git. Inspired by Obsidian's clean, minimal design.
+A React Native app for syncing Obsidian vaults via Git.
 
 <p align="center">
-  <img src="docs/screenshots/final-file-browser.png" width="200" alt="Vault Home" />
-  <img src="docs/screenshots/final-editor.png" width="200" alt="Editor" />
-  <img src="docs/screenshots/final-settings.png" width="200" alt="Settings" />
+  <img src="docs/screenshots/ui-improvements-final.png" width="220" alt="Vault" />
+  <img src="docs/screenshots/final-03-editor.png" width="220" alt="Editor" />
+  <img src="docs/screenshots/final-settings.png" width="220" alt="Settings" />
 </p>
 
 ## Features
 
-- 📝 **Markdown editing** with live preview toolbar (bold, italic, links, headers)
-- 📁 **File tree browser** with collapsible folders
-- 🔗 **Wikilink support** with `[[autocomplete]]`
-- 🔙 **Backlinks panel** showing notes linking to current note
-- 🔍 **Full-text search** with fuzzy matching
-- 🔄 **Git sync** (clone, pull, push) with offline queue
-- ⌘ **Quick switcher** for fast file navigation
-- ⚙️ **Settings** for GitHub authentication (OAuth/PAT)
+- 📝 Markdown editing with syntax dimming & toolbar
+- 📁 File tree with rename, move, delete, folder creation
+- 🔗 Wikilinks with `[[autocomplete]]` and backlinks
+- 🔍 Full-text search (SQLite FTS5)
+- 🔄 Git sync with auto-sync intervals
+- 📱 Haptic feedback & spring animations
+- ♿ WCAG AA accessible
 
-## Performance
+## Install
 
-| Metric | Target | Actual |
-|--------|--------|--------|
-| Cold start | < 2s | **685ms** ✅ |
-| File open | < 100ms | ✅ |
-| Quick switcher | < 50ms | ✅ |
-| Frame time (p50) | < 16ms | 16ms ✅ |
+Download APK from [Releases](https://github.com/yongkangc/obsidian-git-mobile/releases).
 
-## Getting Started
-
-> Make sure you have completed the [React Native environment setup](https://reactnative.dev/docs/set-up-your-environment).
-
-### Install dependencies
+## Build
 
 ```bash
 npm install
-```
-
-### iOS setup
-
-```bash
-bundle install
-bundle exec pod install
-```
-
-### Run the app
-
-```bash
-# Start Metro
-npm start
-
-# In another terminal
-npm run android  # or
-npm run ios
+npx react-native bundle --platform android --dev false \
+  --entry-file index.js \
+  --bundle-output android/app/src/main/assets/index.android.bundle \
+  --assets-dest android/app/src/main/res
+cd android && ./gradlew assembleDebug
 ```
 
 ## Development
 
 ```bash
-npm run lint        # ESLint
-npm run typecheck   # TypeScript
-npm run test        # Jest tests
+npm start          # Metro bundler
+npm run android    # Run app
+npm run typecheck  # TypeScript
+npm run test       # 235 tests
 ```
 
-## E2E Tests
+## License
 
-```bash
-npm run detox:build:android
-npm run detox:test:android
-```
+MIT

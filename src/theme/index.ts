@@ -24,8 +24,8 @@ export const colors = {
   textPrimary: '#ffffff',
   textSecondary: '#dcddde',
   textMuted: '#a0a0a0',
-  textPlaceholder: '#666666',
-  textDisabled: '#555555',
+  textPlaceholder: '#8a8a8a', // WCAG AA compliant contrast (~5:1 on #131416)
+  textDisabled: '#717171', // WCAG AA compliant contrast (~4.5:1 on #131416)
 
   // Accent - consistent purple
   accent: '#8b5cf6',

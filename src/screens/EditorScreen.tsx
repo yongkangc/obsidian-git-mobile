@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   StyleSheet,
@@ -12,16 +12,17 @@ import {
   GestureDetector,
   Directions,
 } from 'react-native-gesture-handler';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Svg, {Path} from 'react-native-svg';
 import type {RootStackParamList} from '../../App';
 import {MarkdownEditor} from '../components/Editor';
-import {BacklinksPanel} from '../components/Backlinks';
+import {BacklinksPanel, BlurHeader} from '../components';
 import {useVaultStore} from '../store';
 import {useBacklinks, type BacklinkInfo} from '../hooks/useBacklinks';
 import {parseWikilinks, parseTitle} from '../utils/markdown';
 import {colors, touchTargets} from '../theme';
+import {vaultFS} from '../services/vault-fs';
+import {indexDB} from '../services/index-db';
 
 type EditorScreenProps = NativeStackScreenProps<RootStackParamList, 'Editor'>;
 
@@ -68,28 +69,30 @@ export function EditorScreen({
   const [content, setContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showBacklinks, setShowBacklinks] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>(
+    'idle',
+  );
   const {fileTree, setCurrentNote, addRecentNote} = useVaultStore();
-  const insets = useSafeAreaInsets();
 
   const filename = path.replace(/^.*\//, '').replace(/\.md$/, '');
   const folderPath = path.replace(/\/[^/]+$/, '').replace(/^\//, '');
 
   const handleGetBacklinks = useCallback(
-    async (_targetPath: string): Promise<BacklinkInfo[]> => {
-      return [
-        {
-          sourcePath: 'notes/daily-notes.md',
-          title: 'Daily Notes',
-          contextLine: `Check out [[${path.replace(/^.*\//, '').replace(/\.md$/, '')}]] for more details.`,
-        },
-        {
-          sourcePath: 'projects/planning.md',
-          title: 'Project Planning',
-          contextLine: `Related: [[${path.replace(/^.*\//, '').replace(/\.md$/, '')}]] and [[Other Note]]`,
-        },
-      ];
+    async (targetPath: string): Promise<BacklinkInfo[]> => {
+      try {
+        // getBacklinks returns string[] of source paths
+        const sourcePaths = await indexDB.getBacklinks(targetPath);
+        return sourcePaths.map(sourcePath => ({
+          sourcePath,
+          title: sourcePath.replace(/^.*\//, '').replace(/\.md$/, ''),
+          contextLine: `Links to [[${targetPath.replace(/^.*\//, '').replace(/\.md$/, '')}]]`,
+        }));
+      } catch (error) {
+        console.warn('Failed to get backlinks from indexDB:', error);
+        return [];
+      }
     },
-    [path],
+    [],
   );
 
   const {backlinks, isLoading: backlinksLoading} = useBacklinks(path, {
@@ -108,7 +111,17 @@ export function EditorScreen({
     async function loadNote() {
       setIsLoading(true);
       try {
-        const noteContent = `# Welcome to ${path}\n\nStart editing your note here.\n\n[[Another Note]]\n`;
+        const fileExists = await vaultFS.exists(path);
+        let noteContent: string;
+        
+        if (fileExists) {
+          noteContent = await vaultFS.readFile(path);
+        } else {
+          // New file - create with default content
+          noteContent = `# ${filename}\n\n`;
+          await vaultFS.writeFile(path, noteContent);
+        }
+        
         if (mounted) {
           setContent(noteContent);
           const title = parseTitle(noteContent);
@@ -137,13 +150,20 @@ export function EditorScreen({
     return () => {
       mounted = false;
     };
-  }, [path, navigation, addRecentNote]);
+  }, [path, filename, addRecentNote]);
 
   const handleSave = useCallback(
     async (newContent: string) => {
+      setSaveStatus('saving');
       try {
+        await vaultFS.writeFile(path, newContent);
+
         const links = parseWikilinks(newContent);
-        void links;
+        try {
+          await indexDB.updateLinksForFile(path, links);
+        } catch (indexError) {
+          console.warn('Failed to update links in index:', indexError);
+        }
 
         const title = parseTitle(newContent);
         setCurrentNote({
@@ -152,14 +172,18 @@ export function EditorScreen({
           modifiedAt: Date.now(),
           contentHash: '',
         });
+
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 1500);
       } catch (error) {
         console.error('Failed to save note:', error);
+        setSaveStatus('idle');
       }
     },
     [path, setCurrentNote],
   );
 
-  const getFileTitles = useCallback((): string[] => {
+  const fileTitles = useMemo((): string[] => {
     const titles: string[] = [];
 
     function collectTitles(nodes: typeof fileTree) {
@@ -176,6 +200,8 @@ export function EditorScreen({
     collectTitles(fileTree);
     return titles;
   }, [fileTree]);
+
+  const getFileTitles = useCallback((): string[] => fileTitles, [fileTitles]);
 
   const handleBacklinkPress = useCallback(
     (sourcePath: string) => {
@@ -205,13 +231,15 @@ export function EditorScreen({
   return (
     <GestureDetector gesture={swipeGesture}>
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <View style={[styles.header, {paddingTop: insets.top + 8}]}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <BlurHeader paddingBottom={12}>
           <View style={styles.headerRow}>
             <Pressable
               onPress={() => navigation.goBack()}
               style={styles.backButton}
-              hitSlop={12}>
+              hitSlop={12}
+              accessibilityLabel="Go back"
+              accessibilityRole="button">
               <BackIcon color={colors.textPrimary} />
             </Pressable>
             <View style={styles.headerTitleContainer}>
@@ -220,18 +248,27 @@ export function EditorScreen({
                   {folderPath}
                 </Text>
               ) : null}
-              <Text style={styles.headerTitle} numberOfLines={1}>
-                {filename}
-              </Text>
+              <View style={styles.titleRow}>
+                <Text style={styles.headerTitle} numberOfLines={1}>
+                  {filename}
+                </Text>
+                {saveStatus !== 'idle' && (
+                  <Text style={styles.saveIndicator}>
+                    {saveStatus === 'saving' ? 'Saving...' : 'Saved'}
+                  </Text>
+                )}
+              </View>
             </View>
             <Pressable
               onPress={() => setShowBacklinks(true)}
               style={styles.headerButton}
-              hitSlop={12}>
+              hitSlop={12}
+              accessibilityLabel="Show backlinks"
+              accessibilityRole="button">
               <BacklinksIcon color={colors.textPlaceholder} />
             </Pressable>
           </View>
-        </View>
+        </BlurHeader>
         <MarkdownEditor
           initialContent={content}
           onSave={handleSave}
@@ -280,6 +317,15 @@ const styles = StyleSheet.create({
   headerTitleContainer: {
     flex: 1,
     marginRight: 8,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  saveIndicator: {
+    color: colors.textPlaceholder,
+    fontSize: 12,
+    marginLeft: 8,
   },
   breadcrumbPath: {
     color: 'rgba(255, 255, 255, 0.5)',

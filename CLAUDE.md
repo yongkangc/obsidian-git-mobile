@@ -41,7 +41,7 @@ npm run detox:test:ios       # Run iOS E2E tests
 ### Core Services (`src/services/`)
 
 - **vault-fs.ts**: File system abstraction over react-native-fs. Handles all vault file operations with caching. Ignores `.git` and `.obsidian` directories.
-- **git-sync.ts**: Git operations using isomorphic-git with LightningFS. Handles clone, pull, push with LWW (last-writer-wins) conflict resolution.
+- **git-sync.ts**: Git operations using isomorphic-git with RNFS adapter. Handles clone, pull, push with LWW (last-writer-wins) conflict resolution. Uses same `DocumentDirectoryPath/vault` path as vault-fs.
 - **index-db.ts**: SQLite database (react-native-quick-sqlite) for file metadata, wikilink graph, and FTS5 full-text search.
 - **indexer.ts**: Indexes vault files, extracts wikilinks, updates search index.
 - **sync-queue.ts**: Queues local changes (add/modify/delete) for batch sync.
