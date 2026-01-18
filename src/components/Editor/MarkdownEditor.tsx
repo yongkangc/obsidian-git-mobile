@@ -8,7 +8,7 @@ import {
   type TextInputSelectionChangeEventData,
   type NativeSyntheticEvent,
 } from 'react-native';
-import {useDebounce} from '../../hooks/useDebounce';
+import {useDebounce, useUndoHistory} from '../../hooks';
 import {WikilinkAutocomplete} from './WikilinkAutocomplete';
 import {EditorToolbar, type FormatState} from './EditorToolbar';
 import {StyledMarkdownOverlay} from './StyledMarkdownOverlay';
@@ -43,6 +43,9 @@ export function MarkdownEditor({
   const inputRef = useRef<TextInput>(null);
   const lastSavedRef = useRef(initialContent);
   const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipHistoryRef = useRef(false);
+
+  const {pushState, undo, redo, canUndo, canRedo} = useUndoHistory(initialContent);
 
   useEffect(() => {
     setText(initialContent);
@@ -71,6 +74,11 @@ export function MarkdownEditor({
       setText(newText);
       debouncedSave(newText);
 
+      if (!skipHistoryRef.current) {
+        pushState(newText, selection.start);
+      }
+      skipHistoryRef.current = false;
+
       // Throttle overlay updates to reduce parseMarkdownSegments calls (every 100ms)
       if (overlayTimerRef.current) {
         clearTimeout(overlayTimerRef.current);
@@ -91,7 +99,7 @@ export function MarkdownEditor({
         setShowAutocomplete(false);
       }
     },
-    [debouncedSave, selection.start],
+    [debouncedSave, selection.start, pushState],
   );
 
   const handleSelectionChange = useCallback(
@@ -176,6 +184,36 @@ export function MarkdownEditor({
     debouncedSave(newText);
   }, [selection, text, debouncedSave]);
 
+  const handleUndo = useCallback(() => {
+    const state = undo();
+    if (state) {
+      skipHistoryRef.current = true;
+      setText(state.text);
+      setOverlayText(state.text);
+      debouncedSave(state.text);
+      setTimeout(() => {
+        inputRef.current?.setNativeProps({
+          selection: {start: state.cursorPos, end: state.cursorPos},
+        });
+      }, 0);
+    }
+  }, [undo, debouncedSave]);
+
+  const handleRedo = useCallback(() => {
+    const state = redo();
+    if (state) {
+      skipHistoryRef.current = true;
+      setText(state.text);
+      setOverlayText(state.text);
+      debouncedSave(state.text);
+      setTimeout(() => {
+        inputRef.current?.setNativeProps({
+          selection: {start: state.cursorPos, end: state.cursorPos},
+        });
+      }, 0);
+    }
+  }, [redo, debouncedSave]);
+
   const formatState = useMemo((): FormatState => {
     const {start} = selection;
     const lineStart = text.lastIndexOf('\n', start - 1) + 1;
@@ -243,6 +281,10 @@ export function MarkdownEditor({
         onHeading={handleHeading}
         onList={handleList}
         onCode={handleCode}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={canUndo}
+        canRedo={canRedo}
         formatState={formatState}
       />
     </KeyboardAvoidingView>

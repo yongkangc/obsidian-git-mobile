@@ -266,7 +266,6 @@ function HeaderAction({icon, onPress, accessibilityLabel}: HeaderActionProps): R
 
 export function VaultScreen(): React.JSX.Element {
   const navigation = useNavigation<VaultScreenNavigationProp>();
-  const insets = useSafeAreaInsets();
   const vaultName = useVaultStore(state => state.vaultName);
   const currentPath = useVaultStore(state => state.currentPath);
   const setCurrentPath = useVaultStore(state => state.setCurrentPath);

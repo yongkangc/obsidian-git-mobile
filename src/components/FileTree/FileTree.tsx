@@ -1,23 +1,15 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import {View, StyleSheet, Text, Pressable} from 'react-native';
+import React, {useCallback, useMemo} from 'react';
+import {View, StyleSheet, Text} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
-import Modal from 'react-native-modal';
 import {useVaultStore} from '../../store';
 import {FileTreeItem} from './FileTreeItem';
 import type {FileNode} from '../../types';
-import {colors, radius, touchTargets} from '../../theme';
+import {colors} from '../../theme';
 
 interface FlattenedNode {
   node: FileNode;
   depth: number;
   key: string;
-}
-
-interface ContextMenuAction {
-  label: string;
-  icon: string;
-  onPress: () => void;
-  destructive?: boolean;
 }
 
 interface FileTreeProps {
@@ -36,9 +28,6 @@ export function FileTree({
   const fileTree = useVaultStore(state => state.fileTree);
   const expandedFolders = useVaultStore(state => state.expandedFolders);
   const toggleFolder = useVaultStore(state => state.toggleFolder);
-
-  const [contextMenuVisible, setContextMenuVisible] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
 
   const flattenTree = useCallback(
     (nodes: FileNode[], depth = 0): FlattenedNode[] => {
@@ -70,47 +59,6 @@ export function FileTree({
     [toggleFolder, onFileSelect],
   );
 
-  const handleLongPress = useCallback((node: FileNode) => {
-    setSelectedNode(node);
-    setContextMenuVisible(true);
-  }, []);
-
-  const closeContextMenu = useCallback(() => {
-    setContextMenuVisible(false);
-    setSelectedNode(null);
-  }, []);
-
-  const contextMenuActions: ContextMenuAction[] = useMemo(() => {
-    if (!selectedNode) return [];
-    return [
-      {
-        label: 'Rename',
-        icon: '✎',
-        onPress: () => {
-          closeContextMenu();
-          onRename?.(selectedNode);
-        },
-      },
-      {
-        label: 'Move',
-        icon: '↗',
-        onPress: () => {
-          closeContextMenu();
-          onMove?.(selectedNode);
-        },
-      },
-      {
-        label: 'Delete',
-        icon: '×',
-        onPress: () => {
-          closeContextMenu();
-          onDelete?.(selectedNode);
-        },
-        destructive: true,
-      },
-    ];
-  }, [selectedNode, onRename, onMove, onDelete, closeContextMenu]);
-
   const renderItem = useCallback(
     ({item}: {item: FlattenedNode}) => (
       <FileTreeItem
@@ -118,10 +66,12 @@ export function FileTree({
         depth={item.depth}
         isExpanded={expandedFolders.has(item.node.path)}
         onPress={handlePress}
-        onLongPress={handleLongPress}
+        onRename={onRename}
+        onMove={onMove}
+        onDelete={onDelete}
       />
     ),
-    [expandedFolders, handlePress, handleLongPress],
+    [expandedFolders, handlePress, onRename, onMove, onDelete],
   );
 
   const keyExtractor = useCallback((item: FlattenedNode) => item.key, []);
@@ -145,54 +95,6 @@ export function FileTree({
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
       />
-
-      <Modal
-        isVisible={contextMenuVisible}
-        onBackdropPress={closeContextMenu}
-        onBackButtonPress={closeContextMenu}
-        backdropOpacity={0.5}
-        style={styles.modal}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        animationInTiming={120}
-        animationOutTiming={80}
-        useNativeDriverForBackdrop>
-        <View style={styles.contextMenu}>
-          {selectedNode && (
-            <View style={styles.contextMenuHeader}>
-              <Text style={styles.contextMenuTitle} numberOfLines={1}>
-                {selectedNode.name}
-              </Text>
-            </View>
-          )}
-          {contextMenuActions.map((action, index) => (
-            <Pressable
-              key={action.label}
-              style={({pressed}) => [
-                styles.contextMenuItem,
-                pressed && styles.contextMenuItemPressed,
-                index === contextMenuActions.length - 1 &&
-                  styles.contextMenuItemLast,
-              ]}
-              onPress={action.onPress}>
-              <Text
-                style={[
-                  styles.contextMenuIcon,
-                  action.destructive && styles.contextMenuDestructive,
-                ]}>
-                {action.icon}
-              </Text>
-              <Text
-                style={[
-                  styles.contextMenuLabel,
-                  action.destructive && styles.contextMenuDestructive,
-                ]}>
-                {action.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -219,52 +121,5 @@ const styles = StyleSheet.create({
     color: colors.textPlaceholder,
     fontSize: 13,
     textAlign: 'center',
-  },
-  modal: {
-    margin: 0,
-    justifyContent: 'flex-end',
-  },
-  contextMenu: {
-    backgroundColor: colors.backgroundCard,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    paddingBottom: 34,
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: colors.border,
-  },
-  contextMenuHeader: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  contextMenuTitle: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  contextMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    minHeight: touchTargets.comfortable,
-  },
-  contextMenuItemPressed: {
-    backgroundColor: colors.border,
-  },
-  contextMenuItemLast: {},
-  contextMenuIcon: {
-    fontSize: 16,
-    color: colors.textPlaceholder,
-    width: 24,
-  },
-  contextMenuLabel: {
-    color: colors.textSecondary,
-    fontSize: 15,
-  },
-  contextMenuDestructive: {
-    color: colors.error,
   },
 });

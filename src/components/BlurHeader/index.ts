@@ -1,1 +1,1 @@
-export {BlurHeader} from './BlurHeader';
+export {BlurHeader, useBlurHeaderHeight} from './BlurHeader';

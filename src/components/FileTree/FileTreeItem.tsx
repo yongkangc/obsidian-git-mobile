@@ -1,5 +1,7 @@
-import React, {useCallback, useRef} from 'react';
-import {StyleSheet, Text, View, Pressable, Animated} from 'react-native';
+import React, {useCallback, useRef, useMemo} from 'react';
+import {StyleSheet, Text, View, Pressable, Animated, Platform} from 'react-native';
+import ContextMenu from 'react-native-context-menu-view';
+import type {ContextMenuAction} from 'react-native-context-menu-view';
 import type {FileNode} from '../../types';
 import {colors, touchTargets} from '../../theme';
 import {haptics} from '../../utils/haptics';
@@ -12,7 +14,9 @@ interface FileTreeItemProps {
   isExpanded: boolean;
   isSelected?: boolean;
   onPress: (node: FileNode) => void;
-  onLongPress: (node: FileNode) => void;
+  onRename?: (node: FileNode) => void;
+  onMove?: (node: FileNode) => void;
+  onDelete?: (node: FileNode) => void;
 }
 
 function formatSecondaryText(node: FileNode): string {
@@ -42,9 +46,41 @@ export const FileTreeItem = React.memo(function FileTreeItem({
   isExpanded,
   isSelected,
   onPress,
-  onLongPress,
+  onRename,
+  onMove,
+  onDelete,
 }: FileTreeItemProps): React.JSX.Element {
   const scale = useRef(new Animated.Value(1)).current;
+
+  const menuActions: ContextMenuAction[] = useMemo(() => {
+    const actions: ContextMenuAction[] = [
+      {title: 'Rename'},
+      {title: 'Move to...'},
+      {title: 'Delete', destructive: true},
+    ];
+    if (Platform.OS === 'ios') {
+      actions[0].systemIcon = 'pencil';
+      actions[1].systemIcon = 'folder';
+      actions[2].systemIcon = 'trash';
+    }
+    return actions;
+  }, []);
+
+  const handleMenuPress = useCallback((e: {nativeEvent: {index: number; name: string}}) => {
+    haptics.impactLight();
+    const {name} = e.nativeEvent;
+    switch (name) {
+      case 'Rename':
+        onRename?.(node);
+        break;
+      case 'Move to...':
+        onMove?.(node);
+        break;
+      case 'Delete':
+        onDelete?.(node);
+        break;
+    }
+  }, [node, onRename, onMove, onDelete]);
 
   const handlePressIn = useCallback(() => {
     Animated.timing(scale, {
@@ -68,11 +104,6 @@ export const FileTreeItem = React.memo(function FileTreeItem({
     onPress(node);
   }, [node, onPress]);
 
-  const handleLongPress = useCallback(() => {
-    haptics.impactMedium();
-    onLongPress(node);
-  }, [node, onLongPress]);
-
   const displayName = node.isDirectory
     ? node.name
     : node.name.replace(/\.md$/, '');
@@ -80,47 +111,51 @@ export const FileTreeItem = React.memo(function FileTreeItem({
   const secondaryText = formatSecondaryText(node);
 
   return (
-    <Animated.View style={{transform: [{scale}]}}>
-      <Pressable
-        style={[
-          styles.container,
-          {paddingLeft: depth * INDENT_SIZE + 24},
-          isSelected && styles.selected,
-        ]}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={handlePress}
-        onLongPress={handleLongPress}
-        delayLongPress={400}
-        accessibilityLabel={node.isDirectory ? `${displayName} folder` : `${displayName} note`}
-        accessibilityHint={node.isDirectory ? 'Double tap to open folder' : 'Double tap to open note'}
-        accessibilityRole={node.isDirectory ? 'button' : 'button'}>
-      {node.isDirectory ? (
-        <>
-          <Text style={styles.chevron}>{isExpanded ? '▿' : '▹'}</Text>
-          <View style={styles.folderIcon}>
-            <View style={styles.folderShape} />
+    <ContextMenu
+      title={displayName}
+      actions={menuActions}
+      onPress={handleMenuPress}
+      previewBackgroundColor={colors.background}>
+      <Animated.View style={{transform: [{scale}]}}>
+        <Pressable
+          style={[
+            styles.container,
+            {paddingLeft: depth * INDENT_SIZE + 24},
+            isSelected && styles.selected,
+          ]}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={handlePress}
+          accessibilityLabel={node.isDirectory ? `${displayName} folder` : `${displayName} note`}
+          accessibilityHint={node.isDirectory ? 'Double tap to open folder, long press for options' : 'Double tap to open note, long press for options'}
+          accessibilityRole="button">
+          {node.isDirectory ? (
+            <>
+              <Text style={styles.chevron}>{isExpanded ? '▿' : '▹'}</Text>
+              <View style={styles.folderIcon}>
+                <View style={styles.folderShape} />
+              </View>
+            </>
+          ) : (
+            <View style={styles.fileIcon}>
+              <View style={styles.fileShape} />
+            </View>
+          )}
+          <View style={styles.textContainer}>
+            <Text
+              style={[styles.name, node.isDirectory ? styles.folderName : styles.fileName]}
+              numberOfLines={1}>
+              {displayName}
+            </Text>
+            {secondaryText ? (
+              <Text style={styles.secondaryText} numberOfLines={1}>
+                {secondaryText}
+              </Text>
+            ) : null}
           </View>
-        </>
-      ) : (
-        <View style={styles.fileIcon}>
-          <View style={styles.fileShape} />
-        </View>
-      )}
-      <View style={styles.textContainer}>
-        <Text
-          style={[styles.name, node.isDirectory ? styles.folderName : styles.fileName]}
-          numberOfLines={1}>
-          {displayName}
-        </Text>
-        {secondaryText ? (
-          <Text style={styles.secondaryText} numberOfLines={1}>
-            {secondaryText}
-          </Text>
-        ) : null}
-      </View>
-      </Pressable>
-    </Animated.View>
+        </Pressable>
+      </Animated.View>
+    </ContextMenu>
   );
 });
 

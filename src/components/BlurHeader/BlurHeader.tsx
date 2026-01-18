@@ -7,16 +7,23 @@ import {colors} from '../../theme';
 interface BlurHeaderProps {
   children: React.ReactNode;
   paddingBottom?: number;
+  absolute?: boolean;
 }
 
 export function BlurHeader({
   children,
   paddingBottom = 12,
+  absolute = false,
 }: BlurHeaderProps): React.JSX.Element {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, {paddingTop: insets.top + 8, paddingBottom}]}>
+    <View
+      style={[
+        styles.container,
+        absolute && styles.absolute,
+        {paddingTop: insets.top + 8, paddingBottom},
+      ]}>
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType="dark"
@@ -29,12 +36,24 @@ export function BlurHeader({
   );
 }
 
+export function useBlurHeaderHeight(paddingBottom = 12): number {
+  const insets = useSafeAreaInsets();
+  return insets.top + 8 + paddingBottom;
+}
+
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
     overflow: 'hidden',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderLight,
+    zIndex: 10,
+  },
+  absolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

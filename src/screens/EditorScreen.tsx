@@ -298,14 +298,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background,
   },
-  header: {
-    backgroundColor: colors.background,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
   },
   backButton: {
     width: touchTargets.minimum,

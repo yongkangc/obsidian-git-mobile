@@ -20,6 +20,10 @@ export interface EditorToolbarProps {
   onHeading: () => void;
   onList: () => void;
   onCode: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   formatState?: FormatState;
 }
 
@@ -119,6 +123,34 @@ function CodeIcon({size = 20, color = '#888888'}: IconProps) {
   );
 }
 
+function UndoIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M3 7v6h6M3 13a9 9 0 0 1 15.36-6.36L21 9"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function RedoIcon({size = 20, color = '#888888'}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M21 7v6h-6M21 13a9 9 0 0 0-15.36-6.36L3 9"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 interface ToolbarButton {
   icon: React.ComponentType<IconProps>;
   onPress: () => void;
@@ -142,6 +174,10 @@ export function EditorToolbar({
   onHeading,
   onList,
   onCode,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
   formatState = defaultFormatState,
 }: EditorToolbarProps): React.JSX.Element {
   const handlePress = (action: () => void) => {
@@ -161,6 +197,37 @@ export function EditorToolbar({
   return (
     <View style={styles.container}>
       <View style={styles.buttonGroup}>
+        {onUndo && (
+          <TouchableOpacity
+            style={[styles.button, !canUndo && styles.buttonDisabled]}
+            onPress={() => canUndo && handlePress(onUndo)}
+            accessibilityLabel="Undo"
+            accessibilityRole="button"
+            accessibilityState={{disabled: !canUndo}}
+            activeOpacity={canUndo ? 0.7 : 1}
+            disabled={!canUndo}>
+            <UndoIcon
+              size={20}
+              color={canUndo ? colors.textPlaceholder : colors.textDisabled}
+            />
+          </TouchableOpacity>
+        )}
+        {onRedo && (
+          <TouchableOpacity
+            style={[styles.button, !canRedo && styles.buttonDisabled]}
+            onPress={() => canRedo && handlePress(onRedo)}
+            accessibilityLabel="Redo"
+            accessibilityRole="button"
+            accessibilityState={{disabled: !canRedo}}
+            activeOpacity={canRedo ? 0.7 : 1}
+            disabled={!canRedo}>
+            <RedoIcon
+              size={20}
+              color={canRedo ? colors.textPlaceholder : colors.textDisabled}
+            />
+          </TouchableOpacity>
+        )}
+        <View style={styles.separator} />
         {buttons.map(button => {
           const isActive = formatState[button.stateKey];
           return (
@@ -206,5 +273,14 @@ const styles = StyleSheet.create({
   },
   buttonActive: {
     backgroundColor: colors.accentMuted,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  separator: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border,
+    marginHorizontal: 4,
   },
 });
