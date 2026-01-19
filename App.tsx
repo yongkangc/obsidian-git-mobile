@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
-import {InteractionManager, StatusBar, View} from 'react-native';
+import {InteractionManager, StatusBar} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -39,7 +40,7 @@ function App(): React.JSX.Element {
   }, [loadRecentNotes, loadSyncInterval]);
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.background}}>
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: colors.background}}>
       <SafeAreaProvider>
         <StatusBar
           barStyle="light-content"
@@ -77,7 +78,7 @@ function App(): React.JSX.Element {
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 

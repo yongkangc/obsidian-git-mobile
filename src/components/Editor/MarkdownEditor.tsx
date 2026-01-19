@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Pressable,
   type TextInputSelectionChangeEventData,
   type NativeSyntheticEvent,
   type LayoutChangeEvent,
@@ -14,6 +15,7 @@ import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {useDebounce, useUndoHistory} from '../../hooks';
 import {WikilinkAutocomplete} from './WikilinkAutocomplete';
 import {EditorToolbar, type FormatState} from './EditorToolbar';
+import {StyledMarkdownOverlay} from './StyledMarkdownOverlay';
 import {colors} from '../../theme';
 import {haptics} from '../../utils/haptics';
 
@@ -45,6 +47,7 @@ export function MarkdownEditor({
 }: MarkdownEditorProps): React.JSX.Element {
   const [text, setText] = useState(initialContent);
   const [selection, setSelection] = useState<Selection>({start: 0, end: 0});
+  const [isFocused, setIsFocused] = useState(true);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteQuery, setAutocompleteQuery] = useState('');
   const [autocompletePosition, setAutocompletePosition] = useState(0);
@@ -99,57 +102,76 @@ export function MarkdownEditor({
     }
   }, debounceMs);
 
-  const applySmartTypography = useCallback(
-    (inputText: string): {text: string; cursorOffset: number} => {
-      let result = inputText;
+  const applySmartTypographyNearCursor = useCallback(
+    (inputText: string, cursorPos: number): {text: string; newCursorPos: number} => {
+      // Only process in a small window before the cursor
+      const windowSize = 10;
+      const from = Math.max(0, cursorPos - windowSize);
+      const before = inputText.slice(0, from);
+      let mid = inputText.slice(from, cursorPos);
+      const after = inputText.slice(cursorPos);
+
       let cursorOffset = 0;
 
-      // Smart quotes: "" -> ""
-      if (result.endsWith('"')) {
-        const beforeQuote = result.slice(0, -1);
-        const quoteCount = (beforeQuote.match(/"/g) ?? []).length;
-        const isOpening = quoteCount % 2 === 0;
-        result = beforeQuote + (isOpening ? '"' : '"');
-      }
-
-      // Smart single quotes: '' -> ''
-      if (result.endsWith("'")) {
-        const beforeQuote = result.slice(0, -1);
-        const charBefore = beforeQuote.slice(-1);
-        const isOpening = !charBefore || /\s/.test(charBefore);
-        result = beforeQuote + (isOpening ? '\u2018' : '\u2019');
-      }
-
       // Em-dash: -- -> —
-      if (result.endsWith('--')) {
-        result = result.slice(0, -2) + '—';
+      if (mid.endsWith('--')) {
+        mid = mid.slice(0, -2) + '—';
         cursorOffset = -1;
       }
 
       // Ellipsis: ... -> …
-      if (result.endsWith('...')) {
-        result = result.slice(0, -3) + '…';
+      if (mid.endsWith('...')) {
+        mid = mid.slice(0, -3) + '…';
         cursorOffset = -2;
       }
 
-      return {text: result, cursorOffset};
+      // Smart double quotes
+      if (mid.endsWith('"')) {
+        const textBeforeQuote = before + mid.slice(0, -1);
+        const quoteCount = (textBeforeQuote.match(/"/g) ?? []).length;
+        const isOpening = quoteCount % 2 === 0;
+        mid = mid.slice(0, -1) + (isOpening ? '\u201c' : '\u201d');
+      }
+
+      // Smart single quotes
+      if (mid.endsWith("'")) {
+        const charBefore = mid.slice(-2, -1);
+        const isOpening = !charBefore || /\s/.test(charBefore);
+        mid = mid.slice(0, -1) + (isOpening ? '\u2018' : '\u2019');
+      }
+
+      return {
+        text: before + mid + after,
+        newCursorPos: cursorPos + cursorOffset,
+      };
     },
     [],
   );
 
   const handleTextChange = useCallback(
     (newText: string) => {
-      const {text: processedText, cursorOffset} = applySmartTypography(newText);
+      // Use current selection position for smart typography
+      const cursorPos = selection.start + (newText.length - text.length);
+      const {text: processedText, newCursorPos} = applySmartTypographyNearCursor(newText, cursorPos);
+
       setText(processedText);
       debouncedSave(processedText);
 
+      // Update cursor if it moved due to smart typography
+      if (newCursorPos !== cursorPos) {
+        setTimeout(() => {
+          inputRef.current?.setNativeProps({
+            selection: {start: newCursorPos, end: newCursorPos},
+          });
+        }, 0);
+      }
+
       if (!skipHistoryRef.current) {
-        pushState(processedText, selection.start + cursorOffset);
+        pushState(processedText, newCursorPos);
       }
       skipHistoryRef.current = false;
 
-      const cursorPos = selection.start;
-      const textBeforeCursor = processedText.slice(0, cursorPos + 1);
+      const textBeforeCursor = processedText.slice(0, newCursorPos + 1);
       const wikilinkMatch = /\[\[([^\]|]*)$/.exec(textBeforeCursor);
 
       if (wikilinkMatch) {
@@ -160,7 +182,7 @@ export function MarkdownEditor({
         setShowAutocomplete(false);
       }
     },
-    [applySmartTypography, debouncedSave, selection.start, pushState],
+    [text, selection.start, applySmartTypographyNearCursor, debouncedSave, pushState],
   );
 
   const handleSelectionChange = useCallback(
@@ -400,32 +422,53 @@ export function MarkdownEditor({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}>
       <View style={styles.editorContainer} onLayout={handleEditorLayout}>
-        <GestureDetector gesture={panGesture}>
-          <ScrollView
-            ref={scrollViewRef}
-            style={styles.scrollView}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}>
-            <View style={styles.editorContent}>
-              <TextInput
-                ref={inputRef}
-                style={styles.input}
-                value={text}
-                onChangeText={handleTextChange}
-                onSelectionChange={handleSelectionChange}
-                multiline
-                placeholder={placeholder}
-                placeholderTextColor={colors.textDisabled}
-                textAlignVertical="top"
-                autoCapitalize="sentences"
-                autoCorrect
-                scrollEnabled={false}
-                selectionColor={colors.accent}
-                caretHidden={false}
+        {isFocused ? (
+          <GestureDetector gesture={panGesture}>
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.scrollView}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}>
+              <View style={styles.editorContent}>
+                <TextInput
+                  ref={inputRef}
+                  style={styles.input}
+                  value={text}
+                  onChangeText={handleTextChange}
+                  onSelectionChange={handleSelectionChange}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  multiline
+                  placeholder={placeholder}
+                  placeholderTextColor={colors.textDisabled}
+                  textAlignVertical="top"
+                  autoCapitalize="sentences"
+                  autoCorrect
+                  scrollEnabled={false}
+                  selectionColor={colors.accent}
+                  caretHidden={false}
+                />
+              </View>
+            </ScrollView>
+          </GestureDetector>
+        ) : (
+          <Pressable
+            onPress={() => {
+              setIsFocused(true);
+              setTimeout(() => inputRef.current?.focus(), 100);
+            }}
+            style={styles.previewContainer}>
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.scrollView}
+              showsVerticalScrollIndicator={false}>
+              <StyledMarkdownOverlay
+                text={text}
+                style={styles.markdownPreview}
               />
-            </View>
-          </ScrollView>
-        </GestureDetector>
+            </ScrollView>
+          </Pressable>
+        )}
         {showAutocomplete && (
           <WikilinkAutocomplete
             query={autocompleteQuery}
@@ -479,6 +522,13 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     zIndex: 1,
     backgroundColor: 'transparent',
+    minHeight: 300,
+  },
+  previewContainer: {
+    flex: 1,
+  },
+  markdownPreview: {
+    position: 'relative',
     minHeight: 300,
   },
 });

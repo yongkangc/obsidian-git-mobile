@@ -44,6 +44,12 @@ interface StatResult {
   isSymbolicLink: () => boolean;
 }
 
+function makeENOENT(op: string, path: string): Error & {code: string} {
+  const err = new Error(`ENOENT: no such file or directory, ${op} '${path}'`) as Error & {code: string};
+  err.code = 'ENOENT';
+  return err;
+}
+
 
 
 // Create a promisified filesystem interface compatible with isomorphic-git
@@ -53,6 +59,11 @@ export const rnfsAdapter = {
       filepath: string,
       options?: {encoding?: string} | string,
     ): Promise<string | Uint8Array> {
+      const exists = await RNFS.exists(filepath);
+      if (!exists) {
+        throw makeENOENT('open', filepath);
+      }
+
       const encoding =
         typeof options === 'string'
           ? options
@@ -97,10 +108,18 @@ export const rnfsAdapter = {
     },
 
     async unlink(filepath: string): Promise<void> {
+      const exists = await RNFS.exists(filepath);
+      if (!exists) {
+        throw makeENOENT('unlink', filepath);
+      }
       await RNFS.unlink(filepath);
     },
 
     async readdir(dirpath: string): Promise<string[]> {
+      const exists = await RNFS.exists(dirpath);
+      if (!exists) {
+        throw makeENOENT('scandir', dirpath);
+      }
       const items = await RNFS.readDir(dirpath);
       return items.map(item => item.name);
     },
@@ -118,11 +137,20 @@ export const rnfsAdapter = {
     },
 
     async rmdir(dirpath: string): Promise<void> {
+      const exists = await RNFS.exists(dirpath);
+      if (!exists) {
+        throw makeENOENT('rmdir', dirpath);
+      }
       // RNFS.unlink works for both files and directories
       await RNFS.unlink(dirpath);
     },
 
     async stat(filepath: string): Promise<StatResult> {
+      const exists = await RNFS.exists(filepath);
+      if (!exists) {
+        throw makeENOENT('stat', filepath);
+      }
+
       const stat = await RNFS.stat(filepath);
       const isDir = stat.isDirectory();
       const mtime = new Date(stat.mtime).getTime();
@@ -145,7 +173,7 @@ export const rnfsAdapter = {
 
     async lstat(filepath: string): Promise<StatResult> {
       // RNFS doesn't distinguish lstat from stat
-      return this.stat(filepath);
+      return rnfsAdapter.promises.stat(filepath);
     },
 
     async readlink(_filepath: string): Promise<string> {

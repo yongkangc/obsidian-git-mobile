@@ -39,11 +39,9 @@ export class GitSyncService implements GitSync {
   async clone(repoUrl: string, auth: GitAuth): Promise<void> {
     this.setAuth(auth);
 
-    try {
-      await this.pfs.stat(VAULT_DIR);
+    const exists = await RNFS.exists(VAULT_DIR);
+    if (exists) {
       await this.deleteRecursive(VAULT_DIR);
-    } catch {
-      // Directory doesn't exist, continue
     }
 
     await this.pfs.mkdir(VAULT_DIR);
