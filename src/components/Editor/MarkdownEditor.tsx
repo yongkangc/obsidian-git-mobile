@@ -14,7 +14,6 @@ import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {useDebounce, useUndoHistory} from '../../hooks';
 import {WikilinkAutocomplete} from './WikilinkAutocomplete';
 import {EditorToolbar, type FormatState} from './EditorToolbar';
-import {StyledMarkdownOverlay} from './StyledMarkdownOverlay';
 import {colors} from '../../theme';
 import {haptics} from '../../utils/haptics';
 
@@ -45,18 +44,14 @@ export function MarkdownEditor({
   placeholder = '',
 }: MarkdownEditorProps): React.JSX.Element {
   const [text, setText] = useState(initialContent);
-  const [overlayText, setOverlayText] = useState(initialContent);
   const [selection, setSelection] = useState<Selection>({start: 0, end: 0});
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteQuery, setAutocompleteQuery] = useState('');
   const [autocompletePosition, setAutocompletePosition] = useState(0);
-  const [focusMode, setFocusMode] = useState(false);
-  const [frontmatterCollapsed, setFrontmatterCollapsed] = useState(true);
   const [editorHeight, setEditorHeight] = useState(0);
   const inputRef = useRef<TextInput>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const lastSavedRef = useRef(initialContent);
-  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipHistoryRef = useRef(false);
   const lastScrollLineRef = useRef(-1);
 
@@ -64,25 +59,11 @@ export function MarkdownEditor({
 
   useEffect(() => {
     setText(initialContent);
-    setOverlayText(initialContent);
     lastSavedRef.current = initialContent;
   }, [initialContent]);
 
   const getLineFromPosition = useCallback((pos: number, content: string): number => {
     return content.slice(0, pos).split('\n').length - 1;
-  }, []);
-
-  const getCurrentParagraphIndex = useCallback((pos: number, content: string): number => {
-    const paragraphs = content.split(/\n\n+/);
-    let charCount = 0;
-    for (let i = 0; i < paragraphs.length; i++) {
-      const paragraph = paragraphs[i];
-      if (!paragraph) continue;
-      charCount += paragraph.length;
-      if (pos <= charCount) return i;
-      charCount += 2; // account for \n\n
-    }
-    return paragraphs.length - 1;
   }, []);
 
   const scrollToTypewriterPosition = useCallback((lineNumber: number) => {
@@ -98,14 +79,18 @@ export function MarkdownEditor({
     setEditorHeight(event.nativeEvent.layout.height);
   }, []);
 
-  // Cleanup overlay timer on unmount
+  // Save immediately when component unmounts (user navigates back)
+  const textRef = useRef(text);
+  textRef.current = text;
+  
   useEffect(() => {
     return () => {
-      if (overlayTimerRef.current) {
-        clearTimeout(overlayTimerRef.current);
+      // Force save on unmount if there are unsaved changes
+      if (textRef.current !== lastSavedRef.current) {
+        onSave(textRef.current);
       }
     };
-  }, []);
+  }, [onSave]);
 
   const debouncedSave = useDebounce((content: string) => {
     if (content !== lastSavedRef.current) {
@@ -162,14 +147,6 @@ export function MarkdownEditor({
         pushState(processedText, selection.start + cursorOffset);
       }
       skipHistoryRef.current = false;
-
-      // Throttle overlay updates to reduce parseMarkdownSegments calls (every 100ms)
-      if (overlayTimerRef.current) {
-        clearTimeout(overlayTimerRef.current);
-      }
-      overlayTimerRef.current = setTimeout(() => {
-        setOverlayText(processedText);
-      }, 100);
 
       const cursorPos = selection.start;
       const textBeforeCursor = processedText.slice(0, cursorPos + 1);
@@ -278,7 +255,6 @@ export function MarkdownEditor({
     if (state) {
       skipHistoryRef.current = true;
       setText(state.text);
-      setOverlayText(state.text);
       debouncedSave(state.text);
       setTimeout(() => {
         inputRef.current?.setNativeProps({
@@ -293,7 +269,6 @@ export function MarkdownEditor({
     if (state) {
       skipHistoryRef.current = true;
       setText(state.text);
-      setOverlayText(state.text);
       debouncedSave(state.text);
       setTimeout(() => {
         inputRef.current?.setNativeProps({
@@ -302,18 +277,6 @@ export function MarkdownEditor({
       }, 0);
     }
   }, [redo, debouncedSave]);
-
-  const handleToggleFocusMode = useCallback(() => {
-    setFocusMode(prev => !prev);
-  }, []);
-
-  const handleToggleFrontmatter = useCallback(() => {
-    setFrontmatterCollapsed(prev => !prev);
-  }, []);
-
-  const currentParagraphIndex = useMemo(() => {
-    return getCurrentParagraphIndex(selection.start, text);
-  }, [selection.start, text, getCurrentParagraphIndex]);
 
   const getCurrentLineInfo = useCallback(() => {
     const {start} = selection;
@@ -333,7 +296,6 @@ export function MarkdownEditor({
     const newText = before + newLine + after;
 
     setText(newText);
-    setOverlayText(newText);
     debouncedSave(newText);
     pushState(newText, selection.start + 2);
     haptics.selection();
@@ -360,7 +322,6 @@ export function MarkdownEditor({
     const newText = before + newLine + after;
 
     setText(newText);
-    setOverlayText(newText);
     debouncedSave(newText);
     pushState(newText, Math.max(lineStart, selection.start - 2));
     haptics.selection();
@@ -446,14 +407,6 @@ export function MarkdownEditor({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}>
             <View style={styles.editorContent}>
-              <StyledMarkdownOverlay
-                text={overlayText}
-                style={styles.overlay}
-                focusMode={focusMode}
-                currentParagraphIndex={currentParagraphIndex}
-                frontmatterCollapsed={frontmatterCollapsed}
-                onToggleFrontmatter={handleToggleFrontmatter}
-              />
               <TextInput
                 ref={inputRef}
                 style={styles.input}
@@ -494,8 +447,6 @@ export function MarkdownEditor({
         canUndo={canUndo}
         canRedo={canRedo}
         formatState={formatState}
-        focusMode={focusMode}
-        onToggleFocusMode={handleToggleFocusMode}
         wordCount={wordCount}
         charCount={charCount}
       />
@@ -519,21 +470,13 @@ const styles = StyleSheet.create({
     minHeight: '100%',
     position: 'relative',
   },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 0,
-  },
   input: {
-    color: 'transparent',
-    fontSize: 18,
-    fontFamily: undefined,
+    color: colors.textPrimary,
+    fontSize: 17,
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 16,
-    lineHeight: 30,
+    lineHeight: 28,
     zIndex: 1,
     backgroundColor: 'transparent',
     minHeight: 300,

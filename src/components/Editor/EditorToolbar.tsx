@@ -25,8 +25,6 @@ export interface EditorToolbarProps {
   canUndo?: boolean;
   canRedo?: boolean;
   formatState?: FormatState;
-  focusMode?: boolean;
-  onToggleFocusMode?: () => void;
   wordCount?: number;
   charCount?: number;
 }
@@ -155,27 +153,6 @@ function RedoIcon({size = 20, color = '#888888'}: IconProps) {
   );
 }
 
-function FocusModeIcon({size = 20, color = '#888888'}: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M12 5v14M5 12h14"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity={0.3}
-      />
-      <Path
-        d="M12 8v8"
-        stroke={color}
-        strokeWidth={3}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
-}
-
 interface ToolbarButton {
   icon: React.ComponentType<IconProps>;
   onPress: () => void;
@@ -204,8 +181,6 @@ export function EditorToolbar({
   canUndo = false,
   canRedo = false,
   formatState = defaultFormatState,
-  focusMode = false,
-  onToggleFocusMode,
   wordCount,
   charCount,
 }: EditorToolbarProps): React.JSX.Element {
@@ -278,20 +253,6 @@ export function EditorToolbar({
             );
           })}
         </View>
-        {onToggleFocusMode && (
-          <TouchableOpacity
-            style={[styles.button, focusMode && styles.buttonActive]}
-            onPress={() => handlePress(onToggleFocusMode)}
-            accessibilityLabel="Focus Mode"
-            accessibilityRole="button"
-            accessibilityState={{selected: focusMode}}
-            activeOpacity={0.7}>
-            <FocusModeIcon
-              size={20}
-              color={focusMode ? colors.accent : colors.textPlaceholder}
-            />
-          </TouchableOpacity>
-        )}
       </View>
       {showWordCount && (
         <Text style={styles.wordCount}>

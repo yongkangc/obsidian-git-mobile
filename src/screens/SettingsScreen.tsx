@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {getToken, storeToken, clearToken} from '../services/auth';
+import {gitSync} from '../services/git-sync';
 import type {GitAuth} from '../types';
 import {colors, radius, touchTargets} from '../theme';
 import {useVaultStore} from '../store';
@@ -29,10 +30,13 @@ export function SettingsScreen(): React.JSX.Element {
   const [repoUrl, setRepoUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCloning, setIsCloning] = useState(false);
   const [hasCredentials, setHasCredentials] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const syncInterval = useVaultStore(state => state.syncInterval);
   const setSyncInterval = useVaultStore(state => state.setSyncInterval);
+  const refreshTree = useVaultStore(state => state.refreshTree);
 
   useEffect(() => {
     loadCredentials();
@@ -44,7 +48,11 @@ export function SettingsScreen(): React.JSX.Element {
       if (auth) {
         setToken(auth.token);
         setUsername(auth.username || '');
+        setRepoUrl(auth.repoUrl || '');
         setHasCredentials(true);
+        // Check if repo is cloned
+        const status = await gitSync.status();
+        setIsConnected(status.state !== 'offline' || status.lastSyncAt !== null);
       }
     } catch (error) {
       console.error('Failed to load credentials:', error);
@@ -65,6 +73,7 @@ export function SettingsScreen(): React.JSX.Element {
         type: 'pat',
         token: token.trim(),
         username: username.trim() || undefined,
+        repoUrl: repoUrl.trim() || undefined,
       };
       await storeToken(auth);
       setHasCredentials(true);
@@ -75,7 +84,40 @@ export function SettingsScreen(): React.JSX.Element {
     } finally {
       setIsSaving(false);
     }
-  }, [token, username]);
+  }, [token, username, repoUrl]);
+
+  const handleConnect = useCallback(async () => {
+    if (!repoUrl.trim()) {
+      Alert.alert('Error', 'Repository URL is required to connect');
+      return;
+    }
+    if (!token.trim()) {
+      Alert.alert('Error', 'Please save your credentials first');
+      return;
+    }
+
+    setIsCloning(true);
+    try {
+      const auth: GitAuth = {
+        type: 'pat',
+        token: token.trim(),
+        username: username.trim() || undefined,
+        repoUrl: repoUrl.trim(),
+      };
+      await storeToken(auth);
+      await gitSync.clone(repoUrl.trim(), auth);
+      setIsConnected(true);
+      setHasCredentials(true);
+      await refreshTree();
+      Alert.alert('Success', 'Repository connected and cloned successfully');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Connection Failed', message);
+      console.error('Failed to clone repository:', error);
+    } finally {
+      setIsCloning(false);
+    }
+  }, [token, username, repoUrl, refreshTree]);
 
   const handleClear = useCallback(async () => {
     Alert.alert(
@@ -154,7 +196,7 @@ export function SettingsScreen(): React.JSX.Element {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Repository URL (optional)</Text>
+          <Text style={styles.label}>Repository URL</Text>
           <TextInput
             style={[styles.input, focusedInput === 'repoUrl' && styles.inputFocused]}
             value={repoUrl}
@@ -167,7 +209,17 @@ export function SettingsScreen(): React.JSX.Element {
             onFocus={() => setFocusedInput('repoUrl')}
             onBlur={() => setFocusedInput(null)}
           />
+          <Text style={styles.hint}>
+            The HTTPS URL of your GitHub repository
+          </Text>
         </View>
+
+        {isConnected && (
+          <View style={styles.connectedBadge}>
+            <View style={styles.connectedDot} />
+            <Text style={styles.connectedText}>Repository connected</Text>
+          </View>
+        )}
 
         <View style={styles.buttonRow}>
           <Pressable
@@ -175,9 +227,10 @@ export function SettingsScreen(): React.JSX.Element {
               styles.button,
               styles.primaryButton,
               pressed && styles.primaryButtonPressed,
+              (isSaving || isCloning) && styles.buttonDisabled,
             ]}
             onPress={handleSave}
-            disabled={isSaving}>
+            disabled={isSaving || isCloning}>
             {isSaving ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
@@ -197,6 +250,26 @@ export function SettingsScreen(): React.JSX.Element {
             </Pressable>
           )}
         </View>
+
+        {!isConnected && (
+          <Pressable
+            style={({pressed}) => [
+              styles.connectButton,
+              pressed && styles.connectButtonPressed,
+              isCloning && styles.buttonDisabled,
+            ]}
+            onPress={handleConnect}
+            disabled={isCloning}>
+            {isCloning ? (
+              <View style={styles.connectButtonContent}>
+                <ActivityIndicator size="small" color="#fff" />
+                <Text style={styles.connectButtonText}>Cloning repository...</Text>
+              </View>
+            ) : (
+              <Text style={styles.connectButtonText}>Connect Repository</Text>
+            )}
+          </Pressable>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -365,5 +438,52 @@ const styles = StyleSheet.create({
   },
   intervalButtonTextActive: {
     color: colors.textPrimary,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  connectedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderRadius: radius.sm,
+    marginBottom: 20,
+  },
+  connectedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.success,
+  },
+  connectedText: {
+    color: colors.success,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  connectButton: {
+    marginTop: 16,
+    backgroundColor: colors.success,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: touchTargets.comfortable,
+  },
+  connectButtonPressed: {
+    opacity: 0.8,
+  },
+  connectButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  connectButtonText: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

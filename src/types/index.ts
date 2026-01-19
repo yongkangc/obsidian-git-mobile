@@ -69,6 +69,7 @@ export interface GitAuth {
   type: 'oauth' | 'pat';
   token: string;
   username?: string;
+  repoUrl?: string;
 }
 
 export interface PullResult {

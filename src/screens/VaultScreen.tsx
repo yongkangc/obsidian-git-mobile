@@ -52,6 +52,20 @@ function SettingsIcon({size = 20, color = '#666666'}: IconProps): React.JSX.Elem
   );
 }
 
+function SyncIcon({size = 20, color = '#666666'}: IconProps): React.JSX.Element {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 type VaultScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Vault'
@@ -161,23 +175,28 @@ function SyncDetailsModal({
   );
 }
 
-interface SyncStatusIndicatorProps {
+interface SyncButtonProps {
   onPress: () => void;
 }
 
-function SyncStatusIndicator({
-  onPress,
-}: SyncStatusIndicatorProps): React.JSX.Element {
+function SyncButton({onPress}: SyncButtonProps): React.JSX.Element {
   const syncStatus = useVaultStore(state => state.syncStatus);
   const config = statusConfig[syncStatus.state];
 
   return (
     <Pressable
-      onPress={onPress}
-      style={styles.syncIndicator}
-      accessibilityLabel={`Sync status: ${config.label}`}
+      onPress={() => {
+        haptics.impactLight();
+        onPress();
+      }}
+      style={({pressed}) => [
+        styles.syncButton,
+        pressed && styles.syncButtonPressed,
+      ]}
+      accessibilityLabel={`Sync status: ${config.label}. Tap to sync.`}
       accessibilityRole="button">
-      <View style={[styles.syncDot, {backgroundColor: config.color}]} />
+      <View style={[styles.syncButtonDot, {backgroundColor: config.color}]} />
+      <SyncIcon size={18} color={colors.textSecondary} />
     </Pressable>
   );
 }
@@ -460,9 +479,9 @@ export function VaultScreen(): React.JSX.Element {
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
             <Text style={styles.headerTitle}>{vaultName}</Text>
-            <SyncStatusIndicator onPress={handleSyncPress} />
           </View>
           <View style={styles.headerActions}>
+            <SyncButton onPress={handleSyncPress} />
             <HeaderAction icon={<SearchIcon size={20} color={colors.textPlaceholder} />} onPress={handleSearch} accessibilityLabel="Search notes" />
             <HeaderAction icon={<SettingsIcon size={20} color={colors.textPlaceholder} />} onPress={handleSettings} accessibilityLabel="Settings" />
           </View>
@@ -558,13 +577,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.textPlaceholder,
   },
-  syncIndicator: {
-    width: touchTargets.minimum,
-    height: touchTargets.minimum,
-    justifyContent: 'center',
+  syncButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: colors.backgroundElevated,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  syncDot: {
+  syncButtonPressed: {
+    backgroundColor: colors.backgroundCard,
+  },
+  syncButtonDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
