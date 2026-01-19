@@ -235,6 +235,31 @@
         }
       }
     },
+    "react-native-reanimated": {
+      "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-reanimated",
+      "name": "react-native-reanimated",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-reanimated/RNReanimated.podspec",
+          "version": "4.2.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-reanimated/android",
+          "packageImportPath": "import com.swmansion.reanimated.ReanimatedPackage;",
+          "packageInstance": "new ReanimatedPackage()",
+          "buildTypes": [],
+          "libraryName": "rnreanimated",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-safe-area-context": {
       "root": "/home/yk/oss/obsidian-git-mobile/node_modules/react-native-safe-area-context",
       "name": "react-native-safe-area-context",
