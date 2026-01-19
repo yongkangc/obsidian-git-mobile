@@ -86,6 +86,19 @@ export function SettingsScreen(): React.JSX.Element {
     }
   }, [token, username, repoUrl]);
 
+  const normalizeRepoUrl = (url: string): string => {
+    let normalized = url.trim();
+    // Add https:// if missing
+    if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+      normalized = `https://${normalized}`;
+    }
+    // Add .git suffix if missing
+    if (!normalized.endsWith('.git')) {
+      normalized = `${normalized}.git`;
+    }
+    return normalized;
+  };
+
   const handleConnect = useCallback(async () => {
     if (!repoUrl.trim()) {
       Alert.alert('Error', 'Repository URL is required to connect');
@@ -95,23 +108,35 @@ export function SettingsScreen(): React.JSX.Element {
       Alert.alert('Error', 'Please save your credentials first');
       return;
     }
+    if (!username.trim()) {
+      Alert.alert('Error', 'GitHub username is required');
+      return;
+    }
 
+    const normalizedUrl = normalizeRepoUrl(repoUrl);
     setIsCloning(true);
     try {
       const auth: GitAuth = {
         type: 'pat',
         token: token.trim(),
-        username: username.trim() || undefined,
-        repoUrl: repoUrl.trim(),
+        username: username.trim(),
+        repoUrl: normalizedUrl,
       };
       await storeToken(auth);
-      await gitSync.clone(repoUrl.trim(), auth);
+      await gitSync.clone(normalizedUrl, auth);
       setIsConnected(true);
       setHasCredentials(true);
       await refreshTree();
       Alert.alert('Success', 'Repository connected and cloned successfully');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+    } catch (error: unknown) {
+      let message = 'Unknown error occurred';
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        message = String((error as {message: unknown}).message);
+      }
       Alert.alert('Connection Failed', message);
       console.error('Failed to clone repository:', error);
     } finally {

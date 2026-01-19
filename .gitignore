@@ -80,3 +80,6 @@ buck-out/
 
 # Watchman
 .watchmanconfig
+
+# Test artifacts
+test-artifacts/

@@ -1,10 +1,10 @@
 import git from 'isomorphic-git';
-import http from 'isomorphic-git/http/web';
 import * as RNFS from 'react-native-fs';
 import type {GitSync, GitAuth, PullResult, SyncStatus} from '../types';
 import {getQueue, clearQueue} from './sync-queue';
 import {getToken} from './auth';
 import {rnfsAdapter} from './rnfs-adapter';
+import {gitHttp} from './git-http';
 
 // Use actual device filesystem path
 const VAULT_DIR = `${RNFS.DocumentDirectoryPath}/vault`;
@@ -50,7 +50,7 @@ export class GitSyncService implements GitSync {
 
     await git.clone({
       fs: this.fs,
-      http,
+      http: gitHttp,
       dir: VAULT_DIR,
       url: repoUrl,
       depth: 1,
@@ -90,7 +90,7 @@ export class GitSyncService implements GitSync {
 
     await git.fetch({
       fs: this.fs,
-      http,
+      http: gitHttp,
       dir: VAULT_DIR,
       ...this.getAuthConfig(),
     });
@@ -193,7 +193,7 @@ export class GitSyncService implements GitSync {
 
     await git.push({
       fs: this.fs,
-      http,
+      http: gitHttp,
       dir: VAULT_DIR,
       ...this.getAuthConfig(),
     });
