@@ -30,5 +30,15 @@ target 'ObsidianGitMobile' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Enable FTS5 full-text search in SQLite for react-native-quick-sqlite
+    installer.pods_project.targets.each do |target|
+      if target.name == "react-native-quick-sqlite"
+        target.build_configurations.each do |config|
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'SQLITE_ENABLE_FTS5=1'
+        end
+      end
+    end
   end
 end

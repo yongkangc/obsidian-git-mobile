@@ -7,26 +7,15 @@
  */
 
 import * as RNFS from 'react-native-fs';
-import {decode as base64Decode, encode as base64Encode} from 'base-64';
+import {Buffer} from 'buffer';
 
-// Base64 to Uint8Array conversion
+// Use Buffer for fast base64 conversion (polyfilled in index.js)
 function base64ToUint8Array(base64: string): Uint8Array {
-  const binary = base64Decode(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
+  return new Uint8Array(Buffer.from(base64, 'base64'));
 }
 
-// Uint8Array to Base64 conversion
 function uint8ArrayToBase64(bytes: Uint8Array): string {
-  let binary = '';
-  const len = bytes.length;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i] ?? 0);
-  }
-  return base64Encode(binary);
+  return Buffer.from(bytes).toString('base64');
 }
 
 interface StatResult {
