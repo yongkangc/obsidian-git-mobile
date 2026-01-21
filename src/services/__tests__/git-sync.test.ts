@@ -22,6 +22,7 @@ jest.mock('isomorphic-git', () => ({
   commit: jest.fn().mockResolvedValue('abc123'),
   push: jest.fn().mockResolvedValue(undefined),
   resolveRef: jest.fn().mockResolvedValue('abc123'),
+  currentBranch: jest.fn().mockResolvedValue('main'),
   statusMatrix: jest.fn().mockResolvedValue([]),
   log: jest.fn().mockResolvedValue([
     {
