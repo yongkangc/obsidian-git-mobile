@@ -57,6 +57,7 @@ export class GitSyncService implements GitSync {
       url: repoUrl,
       depth: 1,
       singleBranch: true,
+      noTags: true,
       onProgress: onProgress
         ? (event: {phase: string; loaded: number; total?: number}) => {
             onProgress(event.phase, event.loaded, event.total);
