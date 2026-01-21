@@ -31,6 +31,7 @@ export function SettingsScreen(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
+  const [cloneProgress, setCloneProgress] = useState('');
   const [hasCredentials, setHasCredentials] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -115,6 +116,7 @@ export function SettingsScreen(): React.JSX.Element {
 
     const normalizedUrl = normalizeRepoUrl(repoUrl);
     setIsCloning(true);
+    setCloneProgress('Starting clone...');
     try {
       const auth: GitAuth = {
         type: 'pat',
@@ -123,7 +125,17 @@ export function SettingsScreen(): React.JSX.Element {
         repoUrl: normalizedUrl,
       };
       await storeToken(auth);
-      await gitSync.clone(normalizedUrl, auth);
+      await gitSync.clone(normalizedUrl, auth, (phase, loaded, total) => {
+        const totalStr = total ? `/${total}` : '';
+        if (phase === 'Receiving objects') {
+          const mb = (loaded / 1024 / 1024).toFixed(1);
+          setCloneProgress(`Downloading: ${mb}MB${total ? ` of ${(total / 1024 / 1024).toFixed(1)}MB` : ''}`);
+        } else if (phase === 'Resolving deltas') {
+          setCloneProgress(`Resolving: ${loaded}${totalStr}`);
+        } else {
+          setCloneProgress(`${phase}: ${loaded}${totalStr}`);
+        }
+      });
       setIsConnected(true);
       setHasCredentials(true);
       await refreshTree();
@@ -141,6 +153,7 @@ export function SettingsScreen(): React.JSX.Element {
       console.error('Failed to clone repository:', error);
     } finally {
       setIsCloning(false);
+      setCloneProgress('');
     }
   }, [token, username, repoUrl, refreshTree]);
 
@@ -288,7 +301,9 @@ export function SettingsScreen(): React.JSX.Element {
             {isCloning ? (
               <View style={styles.connectButtonContent}>
                 <ActivityIndicator size="small" color="#fff" />
-                <Text style={styles.connectButtonText}>Cloning repository...</Text>
+                <Text style={styles.connectButtonText}>
+                  {cloneProgress || 'Cloning repository...'}
+                </Text>
               </View>
             ) : (
               <Text style={styles.connectButtonText}>Connect Repository</Text>

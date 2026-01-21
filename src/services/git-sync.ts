@@ -36,7 +36,11 @@ export class GitSyncService implements GitSync {
     };
   }
 
-  async clone(repoUrl: string, auth: GitAuth): Promise<void> {
+  async clone(
+    repoUrl: string,
+    auth: GitAuth,
+    onProgress?: (phase: string, loaded: number, total?: number) => void,
+  ): Promise<void> {
     this.setAuth(auth);
 
     const exists = await RNFS.exists(VAULT_DIR);
@@ -53,6 +57,11 @@ export class GitSyncService implements GitSync {
       url: repoUrl,
       depth: 1,
       singleBranch: true,
+      onProgress: onProgress
+        ? (event: {phase: string; loaded: number; total?: number}) => {
+            onProgress(event.phase, event.loaded, event.total);
+          }
+        : undefined,
       ...this.getAuthConfig(),
     });
   }

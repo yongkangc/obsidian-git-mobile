@@ -57,8 +57,18 @@ export interface SearchResult {
 }
 
 // GitSync interface
+export type CloneProgressCallback = (
+  phase: string,
+  loaded: number,
+  total?: number,
+) => void;
+
 export interface GitSync {
-  clone(repoUrl: string, auth: GitAuth): Promise<void>;
+  clone(
+    repoUrl: string,
+    auth: GitAuth,
+    onProgress?: CloneProgressCallback,
+  ): Promise<void>;
   pull(): Promise<PullResult>;
   commitAndPush(message: string): Promise<void>;
   status(): Promise<SyncStatus>;
