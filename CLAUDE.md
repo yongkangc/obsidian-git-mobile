@@ -36,6 +36,46 @@ npm run detox:build:ios      # Build iOS test app
 npm run detox:test:ios       # Run iOS E2E tests
 ```
 
+## Building Release APK
+
+**Important**: Android build requires Java 17 (not Java 21). Set JAVA_HOME before building:
+
+```bash
+# Build release APK (Linux)
+export JAVA_HOME=/usr/lib/jvm/java-1.17.0-openjdk-amd64
+cd android && ./gradlew assembleRelease
+
+# Build release APK (macOS with Homebrew)
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+cd android && ./gradlew assembleRelease
+
+# Output APK location
+# android/app/build/outputs/apk/release/app-release.apk
+```
+
+## Creating a GitHub Release with APK
+
+```bash
+# 1. Run typecheck
+npm run typecheck
+
+# 2. Commit and push changes
+git add -A && git commit -m "fix: description"
+git push origin main
+
+# 3. Build release APK
+export JAVA_HOME=/usr/lib/jvm/java-1.17.0-openjdk-amd64
+cd android && ./gradlew assembleRelease && cd ..
+
+# 4. Create GitHub release with APK attached
+gh release create v1.x.x \
+  --title "v1.x.x - Release title" \
+  --notes "## Changes
+- Change 1
+- Change 2" \
+  android/app/build/outputs/apk/release/app-release.apk
+```
+
 ## Architecture
 
 ### Core Services (`src/services/`)
