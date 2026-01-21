@@ -93,23 +93,17 @@ export class GitSyncService implements GitSync {
       ...this.getAuthConfig(),
     });
 
+    // Get the current branch name, then resolve its remote tracking ref
+    const currentBranch = await git.currentBranch({
+      fs: this.fs,
+      dir: VAULT_DIR,
+    }) || 'main';
+
     const remoteRef = await git.resolveRef({
       fs: this.fs,
       dir: VAULT_DIR,
-      ref: 'refs/remotes/origin/HEAD',
-    }).catch(() =>
-      git.resolveRef({
-        fs: this.fs,
-        dir: VAULT_DIR,
-        ref: 'refs/remotes/origin/main',
-      }),
-    ).catch(() =>
-      git.resolveRef({
-        fs: this.fs,
-        dir: VAULT_DIR,
-        ref: 'refs/remotes/origin/master',
-      }),
-    );
+      ref: `refs/remotes/origin/${currentBranch}`,
+    });
 
     if (beforeHead === remoteRef) {
       return {updated: [], conflicts: []};
