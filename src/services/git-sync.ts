@@ -52,7 +52,6 @@ export class GitSyncService implements GitSync {
       dir: VAULT_DIR,
       url: repoUrl,
       depth: 1,
-      singleBranch: true,
       ...this.getAuthConfig(),
     });
   }
